@@ -1,6 +1,6 @@
 package org.homs.lentejajdbc.query;
 
-public interface QueryObjectUtils {
+public class QueryObjectUtils {
 
 	public static final int QUERY_STRING_LIMIT = 2000;
 

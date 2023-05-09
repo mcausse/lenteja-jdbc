@@ -9,7 +9,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.homs.lentejajdbc.exception.JdbcException;
 
-public interface FileUtils {
+public class FileUtils {
 
 	public static String loadFileFromClasspath(final String fileName, final String charSetName) {
 		final InputStream is = loadFileFromClasspath(fileName);

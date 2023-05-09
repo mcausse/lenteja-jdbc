@@ -11,7 +11,7 @@ public class QueryObject implements IQueryObject {
 	public QueryObject() {
 		super();
 		this.query = new StringBuilder();
-		this.params = new ArrayList<Object>();
+		this.params = new ArrayList<>();
 	}
 
 	public QueryObject(String sqlFragment) {

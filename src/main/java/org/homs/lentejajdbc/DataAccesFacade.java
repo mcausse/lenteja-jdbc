@@ -13,6 +13,8 @@ public interface DataAccesFacade {
 
 	DataSource getDataSource();
 
+	void close();
+
 	<T> T loadUnique(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException;
 
 	<T> T loadFirst(IQueryObject q, Mapable<T> mapable) throws EmptyResultException;

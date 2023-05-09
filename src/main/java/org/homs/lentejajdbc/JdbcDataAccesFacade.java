@@ -30,12 +30,12 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
 	protected static class Tx {
 
 		final Connection c;
-		final Throwable opened;
+		final Throwable openedAt;
 
 		public Tx(Connection c) {
 			super();
 			this.c = c;
-			this.opened = new Exception();
+			this.openedAt = new Exception();
 			configureConnection();
 		}
 
@@ -52,18 +52,12 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
 			return !c.isClosed();
 		}
 
-		public Throwable getOpened() {
-			return opened;
+		public Throwable getOpenedAt() {
+			return openedAt;
 		}
 	}
 
-	protected final ThreadLocal<Tx> threadton = new ThreadLocal<Tx>() {
-
-		@Override
-		protected Tx initialValue() {
-			return null;
-		};
-	};
+	protected final ThreadLocal<Tx> threadton = ThreadLocal.withInitial(() -> null);
 
 	public JdbcDataAccesFacade(DataSource ds) {
 		super();
@@ -83,7 +77,7 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
 
 	protected void createConnection() {
 		if (isValidTransaction()) {
-			throw new JdbcException("transaction is yet active", threadton.get().getOpened());
+			throw new JdbcException("transaction is yet active", threadton.get().getOpenedAt());
 		}
 		try {
 			threadton.set(new Tx(ds.getConnection()));
@@ -118,7 +112,7 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
 		final Connection c = getConnection();
 		try {
 			c.commit();
-			c.close();
+			close();
 			LOG.debug("<= commit");
 		} catch (final Exception e) {
 			throw new JdbcException(e);
@@ -130,18 +124,18 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
 		final Connection c = getConnection();
 		try {
 			c.rollback();
-			c.close();
+			close();
 			LOG.debug("<= rollback");
 		} catch (final Exception e) {
 			throw new JdbcException(e);
 		}
 	}
 
-	protected void close() {
+	@Override
+	public void close() {
 		final Connection c = getConnection();
 		try {
 			c.close();
-			threadton.remove();
 		} catch (final Exception e) {
 			throw new JdbcException(e);
 		} finally {
