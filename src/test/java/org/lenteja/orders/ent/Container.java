@@ -13,6 +13,7 @@ public class Container {
 
     public List<Block> blocks;
     public List<Slide> slides;
+    public List<OrderObject> objects;
 
     @Override
     public String toString() {

@@ -13,6 +13,7 @@ public class Order {
 
     public List<Container> containers;
     public List<Slide> slides;
+    public List<OrderObject> objects;
 
     @Override
     public String toString() {
