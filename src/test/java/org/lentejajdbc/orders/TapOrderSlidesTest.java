@@ -1,36 +1,13 @@
-package org.lenteja.orders;
+package org.lentejajdbc.orders;
 
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.JdbcDataAccesFacade;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
 import org.hsqldb.jdbc.JDBCDataSource;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TapOrderSlidesTest {
-
-//    public static final String JUL_CONFIG_FILENAME = "julog.properties";
-//
-//    // quan s'instancia la primera instància de Julog, estàticament configura el
-//    // sistema de logging
-//    static {
-//
-//        final InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(JUL_CONFIG_FILENAME);
-//        if (is == null) {
-//            noconfig();
-//        } else {
-//            try {
-//                LogManager.getLogManager().readConfiguration(is);
-//            } catch (Exception e) {
-//                noconfig();
-//            }
-//        }
-//    }
-//
-//    static void noconfig() {
-//        System.err.println("julog:WARN No config file found: \"" + JUL_CONFIG_FILENAME + "\"");
-//        System.err.println("julog:WARN Please initialize the julog system properly.");
-//    }
 
     final DataAccesFacade facade;
 
@@ -42,7 +19,7 @@ public class TapOrderSlidesTest {
         this.facade = new JdbcDataAccesFacade(ds);
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         facade.begin();
         try {

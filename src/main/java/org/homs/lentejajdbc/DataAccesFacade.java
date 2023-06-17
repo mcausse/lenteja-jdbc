@@ -1,37 +1,43 @@
 package org.homs.lentejajdbc;
 
-import java.sql.Connection;
-import java.util.List;
-
-import javax.sql.DataSource;
-
 import org.homs.lentejajdbc.exception.EmptyResultException;
 import org.homs.lentejajdbc.exception.TooManyResultsException;
 import org.homs.lentejajdbc.query.IQueryObject;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+
 public interface DataAccesFacade {
 
-	DataSource getDataSource();
+    DataSource getDataSource();
 
-	void close();
+    void close();
 
-	<T> T loadUnique(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException;
+    <T> T loadUnique(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException;
 
-	<T> T loadFirst(IQueryObject q, Mapable<T> mapable) throws EmptyResultException;
+    <T> T loadFirst(IQueryObject q, Mapable<T> mapable) throws EmptyResultException;
 
-	<T> List<T> load(IQueryObject q, Mapable<T> mapable);
+    interface ConnectionExecutor<T> {
+        T execute(Connection c) throws SQLException;
+    }
 
-	int update(IQueryObject q);
+    <T> T execute(ConnectionExecutor<T> f);
 
-	<T> T extract(IQueryObject q, Mapable<T> extractor);
+    <T> List<T> load(IQueryObject q, Mapable<T> mapable);
 
-	void begin();
+    int update(IQueryObject q);
 
-	void commit();
+    <T> T extract(IQueryObject q, Mapable<T> extractor);
 
-	void rollback();
+    void begin();
 
-	boolean isValidTransaction();
+    void commit();
 
-	Connection getCurrentConnection();
+    void rollback();
+
+    boolean isValidTransaction();
+
+    Connection getCurrentConnection();
 }

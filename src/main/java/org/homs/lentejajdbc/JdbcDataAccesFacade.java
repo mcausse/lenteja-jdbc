@@ -1,14 +1,5 @@
 package org.homs.lentejajdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sql.DataSource;
-
 import org.homs.lentejajdbc.exception.EmptyResultException;
 import org.homs.lentejajdbc.exception.JdbcException;
 import org.homs.lentejajdbc.exception.TooManyResultsException;
@@ -16,277 +7,296 @@ import org.homs.lentejajdbc.query.IQueryObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class JdbcDataAccesFacade implements DataAccesFacade {
 
-	static final Logger LOG = LoggerFactory.getLogger(JdbcDataAccesFacade.class);
+    static final Logger LOG = LoggerFactory.getLogger(JdbcDataAccesFacade.class);
 
-	protected final DataSource ds;
+    protected final ThreadLocal<Tx> threadton = ThreadLocal.withInitial(() -> null);
 
-	@Override
-	public DataSource getDataSource() {
-		return ds;
-	}
+    protected final DataSource ds;
 
-	protected static class Tx {
+    public JdbcDataAccesFacade(DataSource ds) {
+        super();
+        this.ds = ds;
+    }
 
-		final Connection c;
-		final Throwable openedAt;
+    protected static class Tx {
 
-		public Tx(Connection c) {
-			super();
-			this.c = c;
-			this.openedAt = new Exception();
-			configureConnection();
-		}
+        final Connection c;
+        final Throwable openedAt;
 
-		void configureConnection() {
-			try {
-				c.setAutoCommit(false);
-				c.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			} catch (final SQLException e) {
-				throw new JdbcException(e);
-			}
-		}
+        public Tx(Connection c) {
+            super();
+            this.c = c;
+            this.openedAt = new Exception();
+            configureConnection();
+        }
 
-		public boolean isValid() throws SQLException {
-			return !c.isClosed();
-		}
+        void configureConnection() {
+            try {
+                c.setAutoCommit(false);
+                c.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            } catch (final SQLException e) {
+                throw new JdbcException(e);
+            }
+        }
 
-		public Throwable getOpenedAt() {
-			return openedAt;
-		}
-	}
+        public boolean isValid() throws SQLException {
+            return !c.isClosed();
+        }
 
-	protected final ThreadLocal<Tx> threadton = ThreadLocal.withInitial(() -> null);
+        public Throwable getOpenedAt() {
+            return openedAt;
+        }
+    }
 
-	public JdbcDataAccesFacade(DataSource ds) {
-		super();
-		this.ds = ds;
-	}
+    @Override
+    public DataSource getDataSource() {
+        return ds;
+    }
 
-	@Override
-	public void begin() {
-		createConnection();
-		LOG.debug("=> begin");
-	}
+    @Override
+    public void begin() {
+        createConnection();
+        LOG.debug("=> begin");
+    }
 
-	@Override
-	public Connection getCurrentConnection() {
-		return getConnection();
-	}
+    @Override
+    public Connection getCurrentConnection() {
+        return getConnection();
+    }
 
-	protected void createConnection() {
-		if (isValidTransaction()) {
-			throw new JdbcException("transaction is yet active", threadton.get().getOpenedAt());
-		}
-		try {
-			threadton.set(new Tx(ds.getConnection()));
-		} catch (final SQLException e) {
-			throw new JdbcException(e);
-		}
-	}
+    protected void createConnection() {
+        if (isValidTransaction()) {
+            throw new JdbcException("transaction is yet active", threadton.get().getOpenedAt());
+        }
+        try {
+            threadton.set(new Tx(ds.getConnection()));
+        } catch (final SQLException e) {
+            throw new JdbcException(e);
+        }
+    }
 
-	protected Connection getConnection() {
-		try {
-			Tx tx = threadton.get();
-			if (tx == null || !tx.isValid()) {
-				throw new JdbcException("not in a valid transaction");
-			}
-			return tx.c;
-		} catch (final SQLException e) {
-			throw new JdbcException(e);
-		}
-	}
+    protected Connection getConnection() {
+        try {
+            Tx tx = threadton.get();
+            if (tx == null || !tx.isValid()) {
+                throw new JdbcException("not in a valid transaction");
+            }
+            return tx.c;
+        } catch (final SQLException e) {
+            throw new JdbcException(e);
+        }
+    }
 
-	@Override
-	public boolean isValidTransaction() {
-		try {
-			return threadton.get() != null && threadton.get().isValid();
-		} catch (SQLException e) {
-			throw new JdbcException(e);
-		}
-	}
+    @Override
+    public boolean isValidTransaction() {
+        try {
+            return threadton.get() != null && threadton.get().isValid();
+        } catch (SQLException e) {
+            throw new JdbcException(e);
+        }
+    }
 
-	@Override
-	public void commit() {
-		final Connection c = getConnection();
-		try {
-			c.commit();
-			close();
-			LOG.debug("<= commit");
-		} catch (final Exception e) {
-			throw new JdbcException(e);
-		}
-	}
+    @Override
+    public void commit() {
+        final Connection c = getConnection();
+        try {
+            c.commit();
+            close();
+            LOG.debug("<= commit");
+        } catch (final Exception e) {
+            throw new JdbcException(e);
+        }
+    }
 
-	@Override
-	public void rollback() {
-		final Connection c = getConnection();
-		try {
-			c.rollback();
-			close();
-			LOG.debug("<= rollback");
-		} catch (final Exception e) {
-			throw new JdbcException(e);
-		}
-	}
+    @Override
+    public void rollback() {
+        final Connection c = getConnection();
+        try {
+            c.rollback();
+            close();
+            LOG.debug("<= rollback");
+        } catch (final Exception e) {
+            throw new JdbcException(e);
+        }
+    }
 
-	@Override
-	public void close() {
-		final Connection c = getConnection();
-		try {
-			c.close();
-		} catch (final Exception e) {
-			throw new JdbcException(e);
-		} finally {
-			threadton.remove();
-		}
-	}
+    @Override
+    public void close() {
+        final Connection c = getConnection();
+        try {
+            c.close();
+        } catch (final Exception e) {
+            throw new JdbcException(e);
+        } finally {
+            threadton.remove();
+        }
+    }
 
-	protected PreparedStatement prepareStatement(Connection c, IQueryObject q) throws SQLException {
-		final PreparedStatement ps = c.prepareStatement(q.getQuery());
-		try {
-			Object[] args = q.getArgs();
-			for (int i = 0; i < args.length; i++) {
-				ps.setObject(i + 1, args[i]);
-			}
-			return ps;
-		} catch (final SQLException e) {
-			closeResources(null, ps);
-			throw e;
-		}
-	}
+    protected PreparedStatement prepareStatement(Connection c, IQueryObject q) throws SQLException {
+        final PreparedStatement ps = c.prepareStatement(q.getQuery());
+        try {
+            Object[] args = q.getArgs();
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
+            }
+            return ps;
+        } catch (final SQLException e) {
+            closeResources(null, ps);
+            throw e;
+        }
+    }
 
-	protected void closeResources(ResultSet rs, PreparedStatement ps) {
-		if (rs != null) {
-			try {
-				rs.close();
-			} catch (final SQLException e) {
-				throw new JdbcException(e);
-			}
-		}
-		if (ps != null) {
-			try {
-				ps.close();
-			} catch (final SQLException e) {
-				throw new JdbcException(e);
-			}
-		}
-	}
+    protected void closeResources(ResultSet rs, PreparedStatement ps) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (final SQLException e) {
+                throw new JdbcException(e);
+            }
+        }
+        if (ps != null) {
+            try {
+                ps.close();
+            } catch (final SQLException e) {
+                throw new JdbcException(e);
+            }
+        }
+    }
 
-	@Override
-	public <T> T loadUnique(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException {
+    @Override
+    public <T> T loadUnique(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException {
 
-		LOG.debug("{}", q);
-		Connection c;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			c = getConnection();
-			ps = prepareStatement(c, q);
-			rs = ps.executeQuery();
-			if (!rs.next()) {
-				throw new EmptyResultException(q.toString());
-			}
-			final T r = mapable.map(rs);
-			if (rs.next()) {
-				throw new TooManyResultsException(q.toString());
-			}
-			return r;
-		} catch (final EmptyResultException e) {
-			throw e;
-		} catch (final SQLException e) {
-			throw new JdbcException(q.toString(), e);
-		} finally {
-			closeResources(rs, ps);
-		}
-	}
+        LOG.debug("{}", q);
+        Connection c;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+            ps = prepareStatement(c, q);
+            rs = ps.executeQuery();
+            if (!rs.next()) {
+                throw new EmptyResultException(q.toString());
+            }
+            final T r = mapable.map(rs);
+            if (rs.next()) {
+                throw new TooManyResultsException(q.toString());
+            }
+            return r;
+        } catch (final EmptyResultException e) {
+            throw e;
+        } catch (final SQLException e) {
+            throw new JdbcException(q.toString(), e);
+        } finally {
+            closeResources(rs, ps);
+        }
+    }
 
-	@Override
-	public <T> T loadFirst(IQueryObject q, Mapable<T> mapable) throws EmptyResultException {
-		LOG.debug("{}", q);
-		Connection c;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			c = getConnection();
-			ps = prepareStatement(c, q);
-			rs = ps.executeQuery();
-			if (!rs.next()) {
-				throw new EmptyResultException(q.toString());
-			}
-			final T r = mapable.map(rs);
-			return r;
-		} catch (final EmptyResultException e) {
-			throw e;
-		} catch (final SQLException e) {
-			throw new JdbcException(q.toString(), e);
-		} finally {
-			closeResources(rs, ps);
-		}
-	}
+    @Override
+    public <T> T loadFirst(IQueryObject q, Mapable<T> mapable) throws EmptyResultException {
+        LOG.debug("{}", q);
+        Connection c;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+            ps = prepareStatement(c, q);
+            rs = ps.executeQuery();
+            if (!rs.next()) {
+                throw new EmptyResultException(q.toString());
+            }
+            final T r = mapable.map(rs);
+            return r;
+        } catch (final EmptyResultException e) {
+            throw e;
+        } catch (final SQLException e) {
+            throw new JdbcException(q.toString(), e);
+        } finally {
+            closeResources(rs, ps);
+        }
+    }
 
-	@Override
-	public <T> List<T> load(IQueryObject q, Mapable<T> mapable) {
-		LOG.debug("{}", q);
-		Connection c;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			c = getConnection();
-			ps = prepareStatement(c, q);
-			rs = ps.executeQuery();
-			final List<T> r = new ArrayList<T>();
-			while (rs.next()) {
-				r.add(mapable.map(rs));
-			}
-			return r;
-		} catch (final SQLException e) {
-			throw new JdbcException(q.toString(), e);
-		} finally {
-			closeResources(rs, ps);
-		}
-	}
+    @Override
+    public <T> T execute(ConnectionExecutor<T> f) {
+        Connection c;
+        try {
+            c = getConnection();
+            return f.execute(c);
+        } catch (SQLException e) {
+            throw new JdbcException(e);
+        }
+    }
 
-	@Override
-	public int update(final IQueryObject q) {
-		Connection c;
-		PreparedStatement ps = null;
-		int affectedRows = -1;
-		try {
-			c = getConnection();
-			ps = prepareStatement(c, q);
-			affectedRows = ps.executeUpdate();
-			return affectedRows;
-		} catch (final SQLException e) {
-			throw new JdbcException(q.toString(), e);
-		} finally {
-			LOG.debug("{} => {}", q, affectedRows);
-			closeResources(null, ps);
-		}
-	}
+    @Override
+    public <T> List<T> load(IQueryObject q, Mapable<T> mapable) {
+        LOG.debug("{}", q);
+        Connection c;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+            ps = prepareStatement(c, q);
+            rs = ps.executeQuery();
+            final List<T> r = new ArrayList<>();
+            while (rs.next()) {
+                r.add(mapable.map(rs));
+            }
+            return r;
+        } catch (final SQLException e) {
+            throw new JdbcException(q.toString(), e);
+        } finally {
+            closeResources(rs, ps);
+        }
+    }
 
-	@Override
-	public <T> T extract(final IQueryObject q, Mapable<T> extractor) {
-		LOG.debug("{}", q);
-		Connection c;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			c = getConnection();
-			ps = c.prepareStatement(q.getQuery(), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			Object[] args = q.getArgs();
-			for (int i = 0; i < args.length; i++) {
-				ps.setObject(i + 1, args[i]);
-			}
-			rs = ps.executeQuery();
+    @Override
+    public int update(final IQueryObject q) {
+        Connection c;
+        PreparedStatement ps = null;
+        int affectedRows = -1;
+        try {
+            c = getConnection();
+            ps = prepareStatement(c, q);
+            affectedRows = ps.executeUpdate();
+            return affectedRows;
+        } catch (final SQLException e) {
+            throw new JdbcException(q.toString(), e);
+        } finally {
+            LOG.debug("{} => {}", q, affectedRows);
+            closeResources(null, ps);
+        }
+    }
 
-			return extractor.map(rs);
+    @Override
+    public <T> T extract(final IQueryObject q, Mapable<T> extractor) {
+        LOG.debug("{}", q);
+        Connection c;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            c = getConnection();
+            ps = c.prepareStatement(q.getQuery(), ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            Object[] args = q.getArgs();
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
+            }
+            rs = ps.executeQuery();
 
-		} catch (final SQLException e) {
-			throw new JdbcException(q.toString(), e);
-		} finally {
-			closeResources(rs, ps);
-		}
-	}
+            return extractor.map(rs);
+
+        } catch (final SQLException e) {
+            throw new JdbcException(q.toString(), e);
+        } finally {
+            closeResources(rs, ps);
+        }
+    }
 }

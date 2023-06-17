@@ -4,10 +4,10 @@ import java.util.List;
 
 public interface IQueryObject {
 
-	String getQuery();
+    String getQuery();
 
-	Object[] getArgs();
+    Object[] getArgs();
 
-	List<Object> getArgsList();
+    List<Object> getArgsList();
 
 }

@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface TransactionalMethod {
 
-	boolean readOnly() default false;
+    boolean readOnly() default false;
 
-	EPropagation propagation() default EPropagation.CREATE_OR_REUSE;
+    EPropagation propagation() default EPropagation.CREATE_OR_REUSE;
 
 }

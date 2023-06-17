@@ -73,13 +73,13 @@ public class ResultSetUtils {
 
     public static Boolean getBoolean(final ResultSet rs) throws SQLException {
         boolean v = rs.getBoolean(1);
-//		A method that returns either Boolean.TRUE, Boolean.FALSE or null is an accident waiting to happen.
-//		This method can be invoked as though it returned a value of type boolean, andthe compiler will insert
-//		automatic unboxing of the Boolean value. If a null value is returned,this will result in a NullPointerException.
-//
-//		if (rs.wasNull()) {
-//			return null;
-//		}
+        //		A method that returns either Boolean.TRUE, Boolean.FALSE or null is an accident waiting to happen.
+        //		This method can be invoked as though it returned a value of type boolean, andthe compiler will insert
+        //		automatic unboxing of the Boolean value. If a null value is returned,this will result in a NullPointerException.
+        //
+        //		if (rs.wasNull()) {
+        //			return null;
+        //		}
         return v;
     }
 
@@ -170,23 +170,4 @@ public class ResultSetUtils {
     public static BigDecimal getBigDecimal(final ResultSet rs, final String columnLabel) throws SQLException {
         return rs.getBigDecimal(columnLabel);
     }
-
-    // public static Character getCharacter(final ResultSet rs) throws SQLException
-    // {
-    // String v = rs.getString(1);
-    // if (v == null || v.isEmpty()) {
-    // return null;
-    // }
-    // return v.charAt(0);
-    // }
-    //
-    // public static Character getCharacter(final ResultSet rs, final String
-    // columnLabel) throws SQLException {
-    // String v = rs.getString(columnLabel);
-    // if (v == null || v.isEmpty()) {
-    // return null;
-    // }
-    // return v.charAt(0);
-    // }
-
 }

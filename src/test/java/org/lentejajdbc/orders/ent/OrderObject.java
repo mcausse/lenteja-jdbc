@@ -1,4 +1,4 @@
-package org.lenteja.orders.ent;
+package org.lentejajdbc.orders.ent;
 
 import java.util.Map;
 
