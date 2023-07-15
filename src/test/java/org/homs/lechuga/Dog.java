@@ -1,10 +1,10 @@
 package org.homs.lechuga;
 
-import org.homs.lechuga.def.Column;
-import org.homs.lechuga.def.Generated;
-import org.homs.lechuga.def.Id;
-import org.homs.lechuga.def.Table;
-import org.homs.lechuga.def.generator.impl.HsqldbIdentity;
+import org.homs.lechuga.entity.anno.Column;
+import org.homs.lechuga.entity.anno.Generated;
+import org.homs.lechuga.entity.anno.Id;
+import org.homs.lechuga.entity.anno.Table;
+import org.homs.lechuga.entity.generator.impl.HsqldbIdentity;
 
 @Table
 public class Dog {

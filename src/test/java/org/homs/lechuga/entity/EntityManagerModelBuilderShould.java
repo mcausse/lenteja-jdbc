@@ -2,7 +2,7 @@ package org.homs.lechuga.entity;
 
 import org.homs.lechuga.Dog;
 import org.homs.lechuga.Person;
-import org.homs.lechuga.def.Embedded;
+import org.homs.lechuga.entity.anno.Embedded;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

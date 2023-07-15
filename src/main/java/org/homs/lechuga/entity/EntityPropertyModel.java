@@ -1,11 +1,11 @@
 package org.homs.lechuga.entity;
 
 import org.homs.lechuga.conventions.Conventions;
-import org.homs.lechuga.def.*;
-import org.homs.lechuga.def.generator.Generator;
-import org.homs.lechuga.def.handlers.ColumnHandler;
-import org.homs.lechuga.def.handlers.impl.EnumColumnHandler;
-import org.homs.lechuga.def.handlers.impl.Handlers;
+import org.homs.lechuga.entity.anno.*;
+import org.homs.lechuga.entity.generator.Generator;
+import org.homs.lechuga.entity.handlers.ColumnHandler;
+import org.homs.lechuga.entity.handlers.impl.EnumColumnHandler;
+import org.homs.lechuga.entity.handlers.impl.Handlers;
 import org.homs.lechuga.entity.reflect.BeanProperty;
 import org.homs.lechuga.entity.reflect.ReflectUtils;
 

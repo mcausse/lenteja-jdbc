@@ -1,6 +1,6 @@
 package org.homs.lechuga;
 
-import org.homs.lechuga.def.Transient;
+import org.homs.lechuga.entity.anno.Transient;
 
 public class PersonName {
 

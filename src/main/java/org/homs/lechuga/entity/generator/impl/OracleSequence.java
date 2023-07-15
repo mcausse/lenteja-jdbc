@@ -1,4 +1,4 @@
-package org.homs.lechuga.def.generator.impl;
+package org.homs.lechuga.entity.generator.impl;
 
 import org.homs.lentejajdbc.query.QueryObject;
 

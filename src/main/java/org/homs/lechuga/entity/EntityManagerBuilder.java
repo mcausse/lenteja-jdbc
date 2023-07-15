@@ -2,9 +2,9 @@ package org.homs.lechuga.entity;
 
 import org.homs.lechuga.conventions.Conventions;
 import org.homs.lechuga.conventions.DefaultConventions;
-import org.homs.lechuga.def.Embedded;
-import org.homs.lechuga.def.Table;
-import org.homs.lechuga.def.Transient;
+import org.homs.lechuga.entity.anno.Embedded;
+import org.homs.lechuga.entity.anno.Table;
+import org.homs.lechuga.entity.anno.Transient;
 import org.homs.lechuga.entity.reflect.BeanProperty;
 import org.homs.lentejajdbc.DataAccesFacade;
 

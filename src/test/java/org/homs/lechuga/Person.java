@@ -1,7 +1,7 @@
 package org.homs.lechuga;
 
-import org.homs.lechuga.def.*;
-import org.homs.lechuga.def.generator.impl.HsqldbSequence;
+import org.homs.lechuga.entity.anno.*;
+import org.homs.lechuga.entity.generator.impl.HsqldbSequence;
 
 @Table("persons")
 public class Person {

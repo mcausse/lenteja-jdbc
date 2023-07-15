@@ -1,6 +1,6 @@
-package org.homs.lechuga.def.generator.impl;
+package org.homs.lechuga.entity.generator.impl;
 
-import org.homs.lechuga.def.generator.Generator;
+import org.homs.lechuga.entity.generator.Generator;
 import org.homs.lentejajdbc.query.IQueryObject;
 
 public class AbstractGenerator implements Generator {

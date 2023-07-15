@@ -1,6 +1,6 @@
-package org.homs.lechuga.def.handlers.impl;
+package org.homs.lechuga.entity.handlers.impl;
 
-import org.homs.lechuga.def.handlers.ColumnHandler;
+import org.homs.lechuga.entity.handlers.ColumnHandler;
 import org.homs.lentejajdbc.ResultSetUtils;
 
 import java.math.BigDecimal;

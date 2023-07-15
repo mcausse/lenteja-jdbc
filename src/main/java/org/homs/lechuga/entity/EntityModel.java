@@ -102,7 +102,6 @@ public class EntityModel<E> {
             StringJoiner j = new StringJoiner(" and ");
             for (EntityPropertyModel c : idProperties) {
                 j.add(c.getColumnName() + "=?");
-//                q.addArg(c.getValueForJdbc(id/*, 1*/));
                 q.addArg(c.convertValueForJdbc(id));
             }
             q.append(j.toString());
@@ -229,7 +228,6 @@ public class EntityModel<E> {
             StringJoiner j = new StringJoiner(" and ");
             for (EntityPropertyModel c : idProperties) {
                 j.add(c.getColumnName() + "=?");
-//                q.addArg(c.getValueForJdbc(id/*, 1*/));
                 q.addArg(c.convertValueForJdbc(id));
             }
             q.append(j.toString());
@@ -278,7 +276,6 @@ public class EntityModel<E> {
         StringJoiner j = new StringJoiner(" and ");
         for (EntityPropertyModel i : idProperties) {
             j.add(i.getColumnName() + "=?");
-//            Object value = i.getValueForJdbc(id/*, 1*/);
             Object value = i.convertValueForJdbc(id);
             q.addArg(value);
         }
@@ -294,5 +291,4 @@ public class EntityModel<E> {
                 ", properties=" + properties +
                 '}';
     }
-
 }

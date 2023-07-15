@@ -1,4 +1,4 @@
-package org.homs.lechuga.def.handlers;
+package org.homs.lechuga.entity.handlers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
