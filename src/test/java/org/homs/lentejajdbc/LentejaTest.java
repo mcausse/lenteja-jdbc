@@ -1,4 +1,4 @@
-package org.lentejajdbc;
+package org.homs.lentejajdbc;
 
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.JdbcDataAccesFacade;

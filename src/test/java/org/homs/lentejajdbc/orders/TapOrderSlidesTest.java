@@ -1,4 +1,4 @@
-package org.lentejajdbc.orders;
+package org.homs.lentejajdbc.orders;
 
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.JdbcDataAccesFacade;

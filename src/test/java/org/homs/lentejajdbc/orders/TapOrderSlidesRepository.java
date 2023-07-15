@@ -1,9 +1,9 @@
-package org.lentejajdbc.orders;
+package org.homs.lentejajdbc.orders;
 
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.Mapable;
 import org.homs.lentejajdbc.ResultSetUtils;
-import org.lentejajdbc.orders.ent.*;
+import org.homs.lentejajdbc.orders.ent.*;
 
 import java.util.List;
 

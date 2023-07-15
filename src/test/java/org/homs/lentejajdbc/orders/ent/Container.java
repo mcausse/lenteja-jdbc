@@ -1,23 +1,25 @@
-package org.lentejajdbc.orders.ent;
+package org.homs.lentejajdbc.orders.ent;
 
 import java.util.List;
 import java.util.Map;
 
 
-public class Block {
+public class Container {
 
     public Integer id;
-    public String BlockID;
+    public String ContainerID;
 
     public Map<String, Object> allValues;
 
+    public List<Block> blocks;
     public List<Slide> slides;
     public List<OrderObject> objects;
 
     @Override
     public String toString() {
-        return "Block{" +
-                "BlockID='" + BlockID + '\'' +
+        return "Container{" +
+                "ContainerID='" + ContainerID + '\'' +
+                ", blocks=" + blocks +
                 ", slides=" + slides +
                 '}';
     }
