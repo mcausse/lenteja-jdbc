@@ -25,7 +25,7 @@ public class EntityManagerBuilder {
     }
 
     public <E, ID> EntityManager<E, ID> buildEntityManager(DataAccesFacade facade, Class<E> entityClass) {
-        return new EntityManager<E, ID>(buildEntityModel(entityClass), facade);
+        return new EntityManager<>(buildEntityModel(entityClass), facade);
     }
 
     public <E> EntityModel<E> buildEntityModel(Class<E> entityClass) {

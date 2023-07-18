@@ -240,4 +240,35 @@ class EntityManagerBuilderShould {
                         "[Dog{id=11, chipId='bbb', name='din', age=13}, Dog{id=12, chipId='bbb', name='chucho', age=14}]"
                 );
     }
+
+    @Test
+    void load_persons_by_property() {
+        var personManager = new EntityManagerBuilder().buildEntityManager(facade, Person.class);
+
+        facade.begin();
+        try {
+            personManager.store(new Person(new PersonName("m", "h"), 41, ESex.MALE));
+            personManager.store(new Person(new PersonName("m", "e"), 45, ESex.FEMALE));
+            personManager.store(new Person(new PersonName("a", "v"), 44, ESex.FEMALE));
+            personManager.store(new Person(new PersonName("a", "r"), 38, ESex.FEMALE));
+            facade.commit();
+        } catch (Exception e) {
+            facade.rollback();
+            throw e;
+        }
+
+        List<Person> persons;
+        facade.begin();
+        try {
+            // Act
+            persons = personManager.loadByProperty("name.firstName", "m", Order.asc("age"));
+        } finally {
+            facade.rollback();
+        }
+
+        assertThat(persons).hasToString(
+                "[Person{guid='100', name=PersonName{firstName='m', surName='h'}, age=41, sex=MALE}, " +
+                        "Person{guid='101', name=PersonName{firstName='m', surName='e'}, age=45, sex=FEMALE}]"
+        );
+    }
 }
