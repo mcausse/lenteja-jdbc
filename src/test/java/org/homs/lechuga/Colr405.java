@@ -1,10 +1,12 @@
 package org.homs.lechuga;
 
-import org.homs.lechuga.entity.anno.CompositeId;
+import org.homs.lechuga.entity.anno.Embedded;
+import org.homs.lechuga.entity.anno.Id;
 
 public class Colr405 {
 
-    @CompositeId
+    @Id
+    @Embedded
     Colr405Id id;
 
     String value;

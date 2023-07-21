@@ -30,6 +30,13 @@ public class Dog {
         this.age = age;
     }
 
+    public Dog(Long id, String chipId, String name, int age) {
+        this.id = id;
+        this.chipId = chipId;
+        this.name = name;
+        this.age = age;
+    }
+
     public Long getId() {
         return id;
     }

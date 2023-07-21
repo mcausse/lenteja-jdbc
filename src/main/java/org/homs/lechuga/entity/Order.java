@@ -5,8 +5,8 @@ import java.util.List;
 
 public class Order {
 
-    private static final String ASC = " ASC";
-    private static final String DESC = " DESC";
+    private static final String ASC = " asc";
+    private static final String DESC = " desc";
 
     private final String propName;
     private final String order;

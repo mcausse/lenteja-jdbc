@@ -102,9 +102,23 @@ public class EntityPropertyModel {
     }
 
     public Object getValue(Object entity) {
+        return getValue(entity, 0);
+    }
+
+    public Object getValueFromId(Object id) {
+        return getValue(id, 1);
+    }
+
+    public Object getValue(Object entity, int propertySkipLevel) {
+
+        // covers the propertySkipLevel>0 with scalar ids
+        if (propertySkipLevel >= this.beanPropertiesPath.size()) {
+            return entity;
+        }
+
         Object o = entity;
         int i;
-        for (i = 0; i < this.beanPropertiesPath.size() - 1; i++) {
+        for (i = propertySkipLevel; i < this.beanPropertiesPath.size() - 1; i++) {
             BeanProperty property = this.beanPropertiesPath.get(i);
             var propValue = property.getValue(o);
             if (propValue == null) {
@@ -144,9 +158,9 @@ public class EntityPropertyModel {
         return entityClass.getName() + "#" + propertiesPath;
     }
 
-    public <E> Object getValueForJdbc(E entity) {
-        return columnHandler.getJdbcValue(getValue(entity));
-    }
+//    public <E> Object getValueForJdbc(E entity) {
+//        return columnHandler.getJdbcValue(getValue(entity));
+//    }
 
     public Object convertValueForJdbc(Object value) {
         return columnHandler.getJdbcValue(value);

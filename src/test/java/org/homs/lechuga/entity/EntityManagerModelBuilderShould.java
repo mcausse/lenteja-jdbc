@@ -3,6 +3,7 @@ package org.homs.lechuga.entity;
 import org.homs.lechuga.Dog;
 import org.homs.lechuga.Person;
 import org.homs.lechuga.entity.anno.Embedded;
+import org.homs.lechuga.entity.anno.Id;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,10 +23,22 @@ class EntityManagerModelBuilderShould {
 
     public static class PersonDog {
 
+        @Id
+        Long id;
+
         @Embedded
         Person person;
+
         @Embedded
         Dog dog;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
 
         public Person getPerson() {
             return person;
@@ -56,7 +69,7 @@ class EntityManagerModelBuilderShould {
     void properly_build_Dog_entity() {
 
         // Act
-        EntityModel<Dog> entityModel = new EntityManagerBuilder().buildEntityModel(Dog.class);
+        EntityModel<Dog> entityModel = new EntityModelBuilder().build(Dog.class);
 
         assertThat(entityModel.getEntityClass()).isEqualTo(Dog.class);
         assertThat(entityModel.getTableName()).isEqualTo("dog");
@@ -66,7 +79,7 @@ class EntityManagerModelBuilderShould {
     void properly_build_Person_entity() {
 
         // Act
-        EntityModel<Person> entityModel = new EntityManagerBuilder().buildEntityModel(Person.class);
+        EntityModel<Person> entityModel = new EntityModelBuilder().build(Person.class);
 
         assertThat(entityModel.getEntityClass()).isEqualTo(Person.class);
         assertThat(entityModel.getTableName()).isEqualTo("persons");
@@ -76,34 +89,34 @@ class EntityManagerModelBuilderShould {
     void work_well_for_Dog() {
 
         // Act
-        var r = new EntityManagerBuilder().buildPropertiesForEntityClass(Dog.class);
+        var r = new EntityModelBuilder().build(Dog.class);
 
-        assertThat(toString(r)).isEqualTo("[age, chipId, id, name]");
+        assertThat(toString(r.getAllProperties())).isEqualTo("[age, chipId, id, name]");
     }
 
     @Test
     void work_well_for_Person() {
 
         // Act
-        var r = new EntityManagerBuilder().buildPropertiesForEntityClass(Person.class);
+        var r = new EntityModelBuilder().build(Person.class);
 
-        assertThat(toString(r)).isEqualTo("[age, guid, name.firstName, name.surName, sex]");
+        assertThat(toString(r.getAllProperties())).isEqualTo("[age, guid, name.firstName, name.surName, sex]");
     }
 
     @Test
     void work_well_for_PersonDog() {
 
         // Act
-        var r = new EntityManagerBuilder().buildPropertiesForEntityClass(PersonDog.class);
+        var r = new EntityModelBuilder().build(PersonDog.class);
 
-        assertThat(toString(r)).isEqualTo("[dog.age, dog.chipId, dog.id, dog.name, person.age, person.guid, person.name.firstName, person.name.surName, person.sex]");
+        assertThat(toString(r.getAllProperties())).isEqualTo("[dog.age, dog.chipId, dog.id, dog.name, id, person.age, person.guid, person.name.firstName, person.name.surName, person.sex]");
     }
 
     @Test
     void get_and_set_values_in_the_properties_tree() {
 
-        var r = new EntityManagerBuilder().buildPropertiesForEntityClass(PersonDog.class);
-        var prop = r.stream()
+        var r = new EntityModelBuilder().build(PersonDog.class);
+        var prop = r.getAllProperties().stream()
                 .filter(p -> p.getPropertiesPath().equals("person.name.firstName")).
                         reduce((a, b) -> {
                             throw new IllegalStateException("Multiple elements: " + a + ", " + b);

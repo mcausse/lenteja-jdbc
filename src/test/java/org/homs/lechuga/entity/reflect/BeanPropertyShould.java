@@ -32,21 +32,21 @@ class BeanPropertyShould {
 
     @Test
     void find_the_properties_of_Dog_class() {
-        var properties = BeanProperty.findBeanProperties(Dog.class);
+        var properties = BeanProperty.findBeanProperties(Dog.class, null);
 
         assertThat(toString(properties)).isEqualTo("[age, chipId, id, name]");
     }
 
     @Test
     void find_the_properties_of_Inherited_class() {
-        var properties = BeanProperty.findBeanProperties(ExtendedDog.class);
+        var properties = BeanProperty.findBeanProperties(ExtendedDog.class, null);
 
         assertThat(toString(properties)).isEqualTo("[age, chipId, extraField, id, name]");
     }
 
     @Test
     void modify_the_field_values() {
-        var properties = BeanProperty.findBeanProperties(ExtendedDog.class);
+        var properties = BeanProperty.findBeanProperties(ExtendedDog.class, null);
         var dogNameProperty = properties.stream()
                 .filter(p -> p.getName().equals("name"))
                 .reduce((a, b) -> {

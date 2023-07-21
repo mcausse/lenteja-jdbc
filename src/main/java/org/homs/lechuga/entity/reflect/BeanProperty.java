@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class BeanProperty {
 
@@ -46,7 +47,7 @@ public class BeanProperty {
         throw new RuntimeException("field not found: " + beanClass.getName() + "#" + fieldName);
     }
 
-    public static List<BeanProperty> findBeanProperties(Class<?> beanClass) {
+    public static List<BeanProperty> findBeanProperties(Class<?> beanClass, Predicate<BeanProperty> filterBy) {
         BeanInfo info;
         try {
             info = Introspector.getBeanInfo(beanClass);
@@ -61,7 +62,10 @@ public class BeanProperty {
                 continue;
             }
 
-            r.add(new BeanProperty(beanClass, pd));
+            final BeanProperty bp = new BeanProperty(beanClass, pd);
+            if (filterBy == null || filterBy.test(bp)) {
+                r.add(bp);
+            }
         }
         return r;
     }

@@ -24,7 +24,7 @@ public class EntityManager<E, ID> {
 
         this.rowMapper = rs -> {
             E entity = ReflectUtils.newInstance(entityModel.getEntityClass());
-            for (EntityPropertyModel p : entityModel.getProperties()) {
+            for (EntityPropertyModel p : entityModel.getAllProperties()) {
                 Object value = p.getColumnHandler().readValue(rs, p.getColumnName());
                 p.setValue(entity, value);
             }
@@ -117,13 +117,14 @@ public class EntityManager<E, ID> {
 
             boolean insert = false;
             for (EntityPropertyModel p : entityModel.getIdProperties()) {
+                Object value = p.getValue(entity);
                 if (p.getGenerator() == null) {
-                    if (p.getValueForJdbc(entity) == null) {
+                    if (value == null) {
                         throw new LechugaException("una propietat PK no-autogenerada té valor null en store(): "
                                 + entity.getClass().getSimpleName() + "#" + p.getPropertiesPath());
                     }
                 } else {
-                    if (p.getValueForJdbc(entity) == null) {
+                    if (value == null) {
                         insert = true;
                     }
                 }
@@ -138,7 +139,8 @@ public class EntityManager<E, ID> {
         } else {
 
             for (EntityPropertyModel p : entityModel.getIdProperties()) {
-                if (p.getValueForJdbc(entity) == null) {
+                Object value = p.getValue(entity);
+                if (value == null) {
                     throw new LechugaException("una propietat PK no-autogenerada té valor null en store(): "
                             + entity.getClass().getSimpleName() + "#" + p.getPropertiesPath());
                 }
@@ -154,7 +156,7 @@ public class EntityManager<E, ID> {
     }
 
     public boolean exists(final E entity) {
-        QueryObject q = entityModel.queryExists(entity);
+        QueryObject q = entityModel.queryForExists(entity);
         try {
             long count = facade.loadUnique(q, ScalarMappers.LONG);
             return count > 0L;
@@ -166,7 +168,7 @@ public class EntityManager<E, ID> {
     }
 
     public boolean existsById(final ID id) {
-        QueryObject q = entityModel.queryExistsById(id);
+        QueryObject q = entityModel.queryForExistsById(id);
         try {
             long count = facade.loadUnique(q, ScalarMappers.LONG);
             return count > 0L;
