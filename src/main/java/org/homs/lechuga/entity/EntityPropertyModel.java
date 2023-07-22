@@ -158,10 +158,6 @@ public class EntityPropertyModel {
         return entityClass.getName() + "#" + propertiesPath;
     }
 
-//    public <E> Object getValueForJdbc(E entity) {
-//        return columnHandler.getJdbcValue(getValue(entity));
-//    }
-
     public Object convertValueForJdbc(Object value) {
         return columnHandler.getJdbcValue(value);
     }

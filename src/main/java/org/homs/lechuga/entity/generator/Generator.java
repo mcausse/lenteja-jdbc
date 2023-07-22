@@ -4,7 +4,7 @@ import org.homs.lentejajdbc.query.IQueryObject;
 
 public interface Generator {
 
-    boolean isBeforeInsert();
+    GenerateOn getGenerateOn();
 
     IQueryObject getQuery();
 }
