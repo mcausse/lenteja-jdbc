@@ -2,6 +2,9 @@ package org.homs.lechuga.entity.query;
 
 import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityPropertyModel;
+import org.homs.lechuga.exception.LechugaException;
+import org.homs.lentejajdbc.DataAccesFacade;
+import org.homs.lentejajdbc.Mapable;
 import org.homs.lentejajdbc.query.IQueryObject;
 import org.homs.lentejajdbc.query.QueryObject;
 
@@ -9,20 +12,34 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class QueryProcessor {
+public class QueryProcessor<E> {
 
-    final Map<String, EntityManager<?, ?>> aliases = new LinkedHashMap<>();
-    final QueryObject queryObject = new QueryObject();
+    final DataAccesFacade facade;
+    final Mapable<E> rowMapper;
 
-    public QueryProcessor addAlias(String alias, EntityManager<?, ?> entityManager) {
+    final Map<String, EntityManager<?, ?>> aliases;
+    final QueryObject queryObject;
+
+    public QueryProcessor(DataAccesFacade facade, Mapable<E> rowMapper) {
+        this.facade = facade;
+        this.rowMapper = rowMapper;
+        this.aliases = new LinkedHashMap<>();
+        this.queryObject = new QueryObject();
+    }
+
+    public QueryProcessor<E> addAlias(String alias, EntityManager<?, ?> entityManager) {
         this.aliases.put(alias, entityManager);
         return this;
     }
 
-    public QueryProcessor append(String queryFragment, Object... args) {
+    public QueryProcessor<E> append(String queryFragment, Object... args) {
         IQueryObject processedQuery = processQuery(queryFragment, List.of(args).iterator());
         this.queryObject.append(processedQuery);
         return this;
+    }
+
+    public QueryProcessorExecutor<E> execute() {
+        return new QueryProcessorExecutor<>(facade, queryObject, rowMapper);
     }
 
     protected IQueryObject processQuery(String queryFragment, Iterator<Object> args) {
@@ -39,7 +56,7 @@ public class QueryProcessor {
         qo.append(queryFragment.substring(pos));
 
         if (args.hasNext()) {
-            throw new RuntimeException("not all of the arguments has been consumed for the query fragment: " + qo);
+            throw new LechugaException("not all of the arguments has been consumed for the query fragment: " + qo);
         }
 
         return qo;
@@ -47,7 +64,7 @@ public class QueryProcessor {
 
     protected IQueryObject processExpression(String alias, String propertyExpression, String restOfExpression, Iterator<Object> args) {
         if (!this.aliases.containsKey(alias)) {
-            throw new RuntimeException("alias not defined: '" + alias + "'; defined are: " + this.aliases.keySet());
+            throw new LechugaException("alias not defined: '" + alias + "'; defined are: " + this.aliases.keySet());
         }
         EntityManager<?, ?> em = aliases.get(alias);
 
@@ -70,7 +87,7 @@ public class QueryProcessor {
                 hiddenPropertyName = true;
             }
             if (!em.getEntityModel().getPropertyNamesMap().containsKey(propertyExpression)) {
-                throw new RuntimeException("property not defined: '" + propertyExpression +
+                throw new LechugaException("property not defined: '" + propertyExpression +
                         "' in entity: " + em.getEntityModel().toString() +
                         "; defined are: " + em.getEntityModel().getPropertyNamesMap());
             }

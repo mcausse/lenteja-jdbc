@@ -1,6 +1,7 @@
 package org.homs.lechuga.entity.handlers.impl;
 
 import org.homs.lechuga.entity.handlers.ColumnHandler;
+import org.homs.lechuga.exception.LechugaException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,7 +42,7 @@ public class DateStringHandler implements ColumnHandler {
         try {
             return sdf.parse(v);
         } catch (ParseException e) {
-            throw new RuntimeException("parsing '" + v + "' with format: '" + dateFormat + "'", e);
+            throw new LechugaException("parsing '" + v + "' with format: '" + dateFormat + "'", e);
         }
     }
 

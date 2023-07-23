@@ -14,7 +14,7 @@ create table dog (
 	age smallint not null
 );
 create table persons (
-	guid smallint primary key,
+	guid varchar(32) primary key,
 	first_name varchar(15) not null,
 	sur_name varchar(15) not null,
 	age smallint not null,
@@ -25,4 +25,5 @@ insert into dog (chip_num,name,age) values ('aaa', 'faria', 12);
 insert into dog (chip_num,name,age) values ('bbb', 'din', 13);
 insert into dog (chip_num,name,age) values ('bbb', 'chucho', 14);
 
-
+insert into persons (guid,first_name,sur_name,age,genre) values ('12345','m','h',41,'MALE');
+insert into persons (guid,first_name,sur_name,age,genre) values ('67890','a','v',45,'FEMALE');

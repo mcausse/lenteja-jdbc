@@ -1,5 +1,7 @@
 package org.homs.lechuga.entity.reflect;
 
+import org.homs.lechuga.exception.LechugaException;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -44,7 +46,7 @@ public class BeanProperty {
             }
             o = o.getSuperclass();
         }
-        throw new RuntimeException("field not found: " + beanClass.getName() + "#" + fieldName);
+        throw new LechugaException("field not found: " + beanClass.getName() + "#" + fieldName);
     }
 
     public static List<BeanProperty> findBeanProperties(Class<?> beanClass, Predicate<BeanProperty> filterBy) {
@@ -52,7 +54,7 @@ public class BeanProperty {
         try {
             info = Introspector.getBeanInfo(beanClass);
         } catch (IntrospectionException e) {
-            throw new RuntimeException("describing " + beanClass.getName(), e);
+            throw new LechugaException("describing " + beanClass.getName(), e);
         }
 
         var r = new ArrayList<BeanProperty>();

@@ -1,6 +1,7 @@
 package org.homs.lechuga.entity.handlers.impl;
 
 import org.homs.lechuga.entity.handlers.ColumnHandler;
+import org.homs.lechuga.exception.LechugaException;
 import org.homs.lentejajdbc.ResultSetUtils;
 
 import java.math.BigDecimal;
@@ -64,7 +65,7 @@ public class Handlers {
      */
     public static ColumnHandler getHandlerFor(Class<?> type) {
         if (!HANDLERS.containsKey(type)) {
-            throw new RuntimeException("unsupported column type: " + type.getName() + ": please specify a concrete "
+            throw new LechugaException("unsupported column type: " + type.getName() + ": please specify a concrete "
                     + ColumnHandler.class.getName());
         }
         return HANDLERS.get(type);

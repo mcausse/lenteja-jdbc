@@ -1,5 +1,6 @@
 package org.homs.lechuga.entity;
 
+import org.homs.lechuga.entity.query.QueryProcessor;
 import org.homs.lechuga.entity.reflect.ReflectUtils;
 import org.homs.lechuga.exception.LechugaException;
 import org.homs.lentejajdbc.DataAccesFacade;
@@ -9,6 +10,7 @@ import org.homs.lentejajdbc.exception.EmptyResultException;
 import org.homs.lentejajdbc.exception.TooManyResultsException;
 import org.homs.lentejajdbc.query.QueryObject;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -47,6 +49,10 @@ public class EntityManager<E, ID> {
         } catch (TooManyResultsException e) {
             throw new LechugaException("unique result expected, but obtained many: " + q.toString(), e);
         }
+    }
+
+    public QueryProcessor<E> createQuery(String selfAlias) {
+        return new QueryProcessor<>(facade, getRowMapper()).addAlias(selfAlias, this);
     }
 
     public List<E> loadAll(Order... orders) {
@@ -201,4 +207,13 @@ public class EntityManager<E, ID> {
         entityModel.generateAfterInsert(facade, entity);
     }
 
+    public void storeAll(E... entities) {
+        storeAll(Arrays.asList(entities));
+    }
+
+    public void storeAll(Iterable<E> entities) {
+        for (var entity : entities) {
+            store(entity);
+        }
+    }
 }

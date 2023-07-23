@@ -64,6 +64,8 @@ class EntityManagerShould {
 
         facade.begin();
         try {
+            personManager.deleteById("12345");
+            personManager.deleteById("67890");
             personManager.store(new Person(new PersonName("m", "h"), 41, ESex.MALE));
             personManager.store(new Person(new PersonName("m", "e"), 45, ESex.FEMALE));
             personManager.store(new Person(new PersonName("a", "v"), 44, ESex.FEMALE));
@@ -245,6 +247,8 @@ class EntityManagerShould {
 
         facade.begin();
         try {
+            personManager.delete(personManager.loadById("12345"));
+            personManager.delete(personManager.loadById("67890"));
             personManager.store(new Person(new PersonName("m", "h"), 41, ESex.MALE));
             personManager.store(new Person(new PersonName("m", "e"), 45, ESex.FEMALE));
             personManager.store(new Person(new PersonName("a", "v"), 44, ESex.FEMALE));

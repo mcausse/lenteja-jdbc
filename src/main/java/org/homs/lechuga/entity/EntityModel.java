@@ -1,6 +1,7 @@
 package org.homs.lechuga.entity;
 
 import org.homs.lechuga.entity.generator.GenerateOn;
+import org.homs.lechuga.exception.LechugaException;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.ScalarMappers;
 import org.homs.lentejajdbc.query.QueryObject;
@@ -123,7 +124,7 @@ public class EntityModel<E> {
         var j = new StringJoiner(", ");
         for (Order o : orders) {
             if (!this.propertyNamesMap.containsKey(o.getPropName())) {
-                throw new RuntimeException("unknown property: " + o.getPropName() + "; valid are: " + this.propertyNamesMap.keySet());
+                throw new LechugaException("unknown property: " + o.getPropName() + "; valid are: " + this.propertyNamesMap.keySet());
             }
             String columnName = this.propertyNamesMap.get(o.getPropName()).getColumnName();
             j.add(columnName + o.getOrder());
@@ -149,7 +150,7 @@ public class EntityModel<E> {
 
     public QueryObject queryForLoadByProp(String propertyName, Object value, Order[] orders) {
         if (!propertyNamesMap.containsKey(propertyName)) {
-            throw new RuntimeException("unknown property: " + propertyName + " for " + this);
+            throw new LechugaException("unknown property: " + propertyName + " for " + this);
         }
 
         QueryObject q = new QueryObject();

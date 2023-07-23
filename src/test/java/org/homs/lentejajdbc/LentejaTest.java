@@ -1,7 +1,5 @@
 package org.homs.lentejajdbc;
 
-import org.homs.lentejajdbc.DataAccesFacade;
-import org.homs.lentejajdbc.JdbcDataAccesFacade;
 import org.homs.lentejajdbc.query.QueryObject;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.api.BeforeEach;

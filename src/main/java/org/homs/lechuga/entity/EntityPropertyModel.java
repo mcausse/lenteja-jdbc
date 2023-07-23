@@ -8,6 +8,7 @@ import org.homs.lechuga.entity.handlers.impl.EnumColumnHandler;
 import org.homs.lechuga.entity.handlers.impl.Handlers;
 import org.homs.lechuga.entity.reflect.BeanProperty;
 import org.homs.lechuga.entity.reflect.ReflectUtils;
+import org.homs.lechuga.exception.LechugaException;
 
 import java.util.List;
 
@@ -63,7 +64,7 @@ public class EntityPropertyModel {
 
         if (lastProperty.hasAnnotation(Enumerated.class)) {
             if (!Enum.class.isAssignableFrom(lastProperty.getType())) {
-                throw new RuntimeException("@" + Enumerated.class.getName() + " present in property '" + lastProperty + "' but is of type " + lastProperty.getType().getName());
+                throw new LechugaException("@" + Enumerated.class.getName() + " present in property '" + lastProperty + "' but is of type " + lastProperty.getType().getName());
             }
             return new EnumColumnHandler((Class<? extends Enum>) lastProperty.getType());
         }

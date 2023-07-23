@@ -7,6 +7,7 @@ import org.homs.lechuga.entity.anno.Id;
 import org.homs.lechuga.entity.anno.Table;
 import org.homs.lechuga.entity.anno.Transient;
 import org.homs.lechuga.entity.reflect.BeanProperty;
+import org.homs.lechuga.exception.LechugaException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,10 +36,10 @@ public class EntityModelBuilder {
 
         List<BeanProperty> ids = BeanProperty.findBeanProperties(entityClass, bp -> bp.hasAnnotation(Id.class));
         if (ids.isEmpty()) {
-            throw new RuntimeException("a single @" + Id.class.getName() + "-annotated field is mandatory; in entity '" + entityClass.getName() + "'");
+            throw new LechugaException("a single @" + Id.class.getName() + "-annotated field is mandatory; in entity '" + entityClass.getName() + "'");
         }
         if (ids.size() > 1) {
-            throw new RuntimeException("more than 1 @" + Id.class.getName() + "-annotated field; in entity '" + entityClass.getName() + "'");
+            throw new LechugaException("more than 1 @" + Id.class.getName() + "-annotated field; in entity '" + entityClass.getName() + "'");
         }
         BeanProperty id = ids.get(0);
         List<BeanProperty> nonIds = BeanProperty.findBeanProperties(entityClass, bp -> !bp.hasAnnotation(Id.class));
