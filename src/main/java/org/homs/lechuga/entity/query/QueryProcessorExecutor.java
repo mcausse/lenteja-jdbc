@@ -35,4 +35,12 @@ public class QueryProcessorExecutor<E> {
     public int update() {
         return facade.update(queryObject);
     }
+
+    public <T> T loadUniqueScalar(Mapable<T> mapper) throws TooManyResultsException, EmptyResultException {
+        return facade.loadUnique(queryObject, mapper);
+    }
+
+    public <T> List<T> loadScalars(Mapable<T> mapper) {
+        return facade.load(queryObject, mapper);
+    }
 }

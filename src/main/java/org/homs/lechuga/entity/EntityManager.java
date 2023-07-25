@@ -1,5 +1,6 @@
 package org.homs.lechuga.entity;
 
+import org.homs.lechuga.entity.generator.GenerateOn;
 import org.homs.lechuga.entity.query.QueryProcessor;
 import org.homs.lechuga.entity.reflect.ReflectUtils;
 import org.homs.lechuga.exception.LechugaException;
@@ -10,6 +11,7 @@ import org.homs.lentejajdbc.exception.EmptyResultException;
 import org.homs.lentejajdbc.exception.TooManyResultsException;
 import org.homs.lentejajdbc.query.QueryObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -18,12 +20,15 @@ public class EntityManager<E, ID> {
 
     final EntityModel<E> entityModel;
     final DataAccesFacade facade;
+
+    final EntityManagerSqlOperations entityManagerSqlOperations;
     final Mapable<E> rowMapper;
 
     public EntityManager(EntityModel<E> entityModel, DataAccesFacade facade) {
         this.entityModel = entityModel;
         this.facade = facade;
 
+        this.entityManagerSqlOperations = new EntityManagerSqlOperations(entityModel);
         this.rowMapper = rs -> {
             E entity = ReflectUtils.newInstance(entityModel.getEntityClass());
             for (EntityPropertyModel p : entityModel.getAllProperties()) {
@@ -42,8 +47,8 @@ public class EntityManager<E, ID> {
         return rowMapper;
     }
 
-    public E loadById(ID idValue) throws EmptyResultException {
-        QueryObject q = entityModel.queryForLoadById(idValue);
+    public E loadById(ID idValue) throws EmptyResultException, TooManyResultsException {
+        QueryObject q = entityManagerSqlOperations.queryForLoadById(idValue);
         try {
             return facade.loadUnique(q, getRowMapper());
         } catch (TooManyResultsException e) {
@@ -51,22 +56,30 @@ public class EntityManager<E, ID> {
         }
     }
 
+    public List<E> loadByIds(Iterable<ID> ids) throws EmptyResultException, TooManyResultsException {
+        List<E> r = new ArrayList<>();
+        for (ID id : ids) {
+            r.add(loadById(id));
+        }
+        return r;
+    }
+
     public QueryProcessor<E> createQuery(String selfAlias) {
         return new QueryProcessor<>(facade, getRowMapper()).addAlias(selfAlias, this);
     }
 
     public List<E> loadAll(Order... orders) {
-        QueryObject q = entityModel.queryForLoadAll(orders);
+        QueryObject q = entityManagerSqlOperations.queryForLoadAll(orders);
         return facade.load(q, getRowMapper());
     }
 
     public List<E> loadByProperty(String propertyName, Object value, Order... orders) {
-        QueryObject q = entityModel.queryForLoadByProp(propertyName, value, orders);
+        QueryObject q = entityManagerSqlOperations.queryForLoadByProp(propertyName, value, orders);
         return facade.load(q, getRowMapper());
     }
 
     public void deleteById(ID idValue) {
-        QueryObject q = entityModel.queryForDeleteById(idValue);
+        QueryObject q = entityManagerSqlOperations.queryForDeleteById(idValue);
         int affectedResults = facade.update(q);
         if (affectedResults != 1) {
             throw new LechugaException(
@@ -75,7 +88,7 @@ public class EntityManager<E, ID> {
     }
 
     public void delete(E entity) {
-        QueryObject q = entityModel.queryForDelete(entity);
+        QueryObject q = entityManagerSqlOperations.queryForDelete(entity);
         int affectedResults = facade.update(q);
         if (affectedResults != 1) {
             throw new LechugaException(
@@ -162,7 +175,7 @@ public class EntityManager<E, ID> {
     }
 
     public boolean exists(final E entity) {
-        QueryObject q = entityModel.queryForExists(entity);
+        QueryObject q = entityManagerSqlOperations.queryForExists(entity);
         try {
             long count = facade.loadUnique(q, ScalarMappers.LONG);
             return count > 0L;
@@ -174,7 +187,7 @@ public class EntityManager<E, ID> {
     }
 
     public boolean existsById(final ID id) {
-        QueryObject q = entityModel.queryForExistsById(id);
+        QueryObject q = entityManagerSqlOperations.queryForExistsById(id);
         try {
             long count = facade.loadUnique(q, ScalarMappers.LONG);
             return count > 0L;
@@ -188,7 +201,7 @@ public class EntityManager<E, ID> {
     // https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/CrudRepository.html
 
     public void update(E entity) {
-        QueryObject q = entityModel.queryForUpdate(entity);
+        QueryObject q = entityManagerSqlOperations.queryForUpdate(entity);
         int affectedResults = facade.update(q);
 
         if (affectedResults != 1) {
@@ -199,12 +212,32 @@ public class EntityManager<E, ID> {
 
     public void insert(E entity) {
 
-        entityModel.generateBeforeInsert(facade, entity);
+        generateBeforeInsert(facade, entity);
 
-        QueryObject q = entityModel.queryForInsert(entity);
+        QueryObject q = entityManagerSqlOperations.queryForInsert(entity);
         facade.update(q);
 
-        entityModel.generateAfterInsert(facade, entity);
+        generateAfterInsert(facade, entity);
+    }
+
+    protected void generateBeforeInsert(DataAccesFacade facade, E entity) {
+        for (var p : entityModel.getAutogeneratedProperties()) {
+            if (p.getGenerator().getGenerateOn() == GenerateOn.BEFORE) {
+                var query = p.getGenerator().getQuery();
+                Object generatedValue = facade.loadUnique(query, ScalarMappers.getScalarMapperFor(p.getPropertyType()));
+                p.setValue(entity, generatedValue);
+            }
+        }
+    }
+
+    protected void generateAfterInsert(DataAccesFacade facade, E entity) {
+        for (var p : entityModel.getAutogeneratedProperties()) {
+            if (p.getGenerator().getGenerateOn() == GenerateOn.AFTER) {
+                var query = p.getGenerator().getQuery();
+                Object generatedValue = facade.loadUnique(query, ScalarMappers.getScalarMapperFor(p.getPropertyType()));
+                p.setValue(entity, generatedValue);
+            }
+        }
     }
 
     public void storeAll(E... entities) {

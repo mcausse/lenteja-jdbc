@@ -1,8 +1,9 @@
 package org.homs.lentejajdbc.orders.ent;
 
+import org.homs.lechuga.entity.anno.Table;
+
 import java.util.List;
 import java.util.Map;
-
 
 public class Order {
 

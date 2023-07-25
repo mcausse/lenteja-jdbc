@@ -5,6 +5,7 @@ import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityManagerBuilder;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.JdbcDataAccesFacade;
+import org.homs.lentejajdbc.ResultSetUtils;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,7 +89,7 @@ class QueryProcessorTest {
 
         qp
                 .addAlias("p", personManager)
-                .append("select {p.*} from {p} where {p.sex} in ({p.:sex?}, {p.:sex?})", ESex.MALE, ESex.FEMALE);
+                .append("select {p.*} from {p} where {p.sex} in ({p.sex?}, {p.sex?})", ESex.MALE, ESex.FEMALE);
 
 
         assertThat(qp.getQueryObject()).hasToString(
@@ -108,10 +109,32 @@ class QueryProcessorTest {
         man.storeAll(c1, c2, c3, c4);
         facade.commit();
 
-        facade.begin();
-        var r = man.createQuery("c").append("select {c.*} from {c} where {c.id.version>0}").execute().load();
-        facade.rollback();
+        {
+            facade.begin();
+            var r = man.createQuery("c").append("select {c.*} from {c} where {c.id.version>0}").execute().load();
+            facade.rollback();
+            assertThat(r).hasSize(4);
+        }
 
-        assertThat(r).hasSize(4);
+        {
+            facade.begin();
+            var r = man.createQuery("c")
+                    .append("select {c.*} from {c} ")
+                    .append("where {c.id.version=?} and {c.id.guid=?}", 1L, "dee84c18e3a6")
+                    .execute()
+                    .loadUnique();
+            facade.rollback();
+            assertThat(r).hasToString("Colr405{id=Colr405Id{guid='dee84c18e3a6', version=1}, value='juas'}");
+        }
+
+        {
+            facade.begin();
+            var r = man.createQuery("c")
+                    .append("select {c.value} from {c}")
+                    .execute()
+                    .loadScalars(ResultSetUtils::getString);
+            facade.rollback();
+            assertThat(r).hasToString("[jou1, jou2, jou3, juas]");
+        }
     }
 }

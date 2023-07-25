@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EntityModelShould {
+class EntityManagerSqlOperationsShould {
 
     @Test
     void generate_load_by_id_query_for_person() {
-        var em = new EntityModelBuilder().build(Person.class);
+        var em = new EntityManagerSqlOperations(new EntityModelBuilder().build(Person.class));
 
         var qo = em.queryForLoadById("abcdefgh");
 
@@ -21,7 +21,7 @@ class EntityModelShould {
 
     @Test
     void generate_load_by_id_query_for_dog() {
-        var em = new EntityModelBuilder().build(Dog.class);
+        var em = new EntityManagerSqlOperations(new EntityModelBuilder().build(Dog.class));
 
         var qo = em.queryForLoadById(123L);
 
@@ -31,7 +31,7 @@ class EntityModelShould {
 
     @Test
     void generate_load_by_id_query_for_colr405() {
-        var em = new EntityModelBuilder().build(Colr405.class);
+        var em = new EntityManagerSqlOperations(new EntityModelBuilder().build(Colr405.class));
 
         var qo = em.queryForLoadById(new Colr405Id("abcdefgh", 1));
 
@@ -40,7 +40,7 @@ class EntityModelShould {
 
     @Test
     void generate_load_all_query_for_colr405() {
-        var em = new EntityModelBuilder().build(Colr405.class);
+        var em = new EntityManagerSqlOperations(new EntityModelBuilder().build(Colr405.class));
 
         var qo = em.queryForLoadAll(Order.by(Order.asc("id.version"), Order.desc("value")).toArray(new Order[]{}));
 
@@ -49,7 +49,7 @@ class EntityModelShould {
 
     @Test
     void generate_load_by_prop_query_for_colr405() {
-        var em = new EntityModelBuilder().build(Colr405.class);
+        var em = new EntityManagerSqlOperations(new EntityModelBuilder().build(Colr405.class));
 
         var qo = em.queryForLoadByProp(
                 "id.version",
@@ -61,7 +61,7 @@ class EntityModelShould {
 
     @Test
     void generate_update_query_for_colr405() {
-        var em = new EntityModelBuilder().build(Colr405.class);
+        var em = new EntityManagerSqlOperations(new EntityModelBuilder().build(Colr405.class));
 
         var qo = em.queryForUpdate(new Colr405(new Colr405Id("abcdefgh", 1), "jou1"));
 
@@ -70,7 +70,7 @@ class EntityModelShould {
 
     @Test
     void generate_update_query_for_dog() {
-        var em = new EntityModelBuilder().build(Dog.class);
+        var em = new EntityManagerSqlOperations(new EntityModelBuilder().build(Dog.class));
 
         var qo = em.queryForUpdate(new Dog(123L, "abcdefgh", "chuchales", 13));
 
@@ -79,7 +79,7 @@ class EntityModelShould {
 
     @Test
     void generate_exists_query_for_colr405() {
-        var em = new EntityModelBuilder().build(Colr405.class);
+        var em = new EntityManagerSqlOperations(new EntityModelBuilder().build(Colr405.class));
 
         var qo = em.queryForExists(new Colr405(new Colr405Id("abcdefgh", 1), "jou1"));
 
@@ -88,7 +88,7 @@ class EntityModelShould {
 
     @Test
     void generate_exists_By_id_query_for_colr405() {
-        var em = new EntityModelBuilder().build(Colr405.class);
+        var em = new EntityManagerSqlOperations(new EntityModelBuilder().build(Colr405.class));
 
         var qo = em.queryForExistsById(new Colr405Id("abcdefgh", 1));
 

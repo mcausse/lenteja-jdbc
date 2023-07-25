@@ -65,7 +65,8 @@ public class Handlers {
      */
     public static ColumnHandler getHandlerFor(Class<?> type) {
         if (!HANDLERS.containsKey(type)) {
-            throw new LechugaException("unsupported column type: " + type.getName() + ": please specify a concrete "
+            throw new LechugaException("unsupported column type: " + type.getName() + ": " +
+                    "please specify a concrete "
                     + ColumnHandler.class.getName());
         }
         return HANDLERS.get(type);

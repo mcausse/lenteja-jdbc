@@ -32,8 +32,8 @@ create table users (
 	
 	votr_id smallint not null,
 	
-	option_norder integer,
-	option_date timestamp
+	voted_option_num_order integer,
+	voted_option_date timestamp
 );
 
 create table options (
@@ -57,7 +57,7 @@ create table comments (
 
 
 alter table users add foreign key (votr_id) references votrs(votr_id);
-alter table users add foreign key (votr_id,option_norder) references options(votr_id,norder);
+alter table users add foreign key (votr_id,voted_option_num_order) references options(votr_id,norder);
 alter table options add foreign key (votr_id) references votrs(votr_id);
 alter table comments add foreign key (votr_id) references votrs(votr_id);
 alter table comments add foreign key (user_id) references users(user_id);

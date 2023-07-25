@@ -44,19 +44,35 @@ public class QueryProcessor<E> {
 
     protected IQueryObject processQuery(String queryFragment, Iterator<Object> args) {
         QueryObject qo = new QueryObject();
-        Pattern p = Pattern.compile("\\{(\\w+)(\\.([a-zA-Z0-9.*#:]+)([^}]*))?\\}");
+        Pattern p = Pattern.compile("\\{" +
+                "(\\w+)" +  // alias
+                "(\\." +
+                /**/"([\\w.*]+)" + // property path
+                /**/"([^}]*)" + // rest of expression
+                ")?" +
+                "\\}"
+        );
         Matcher m = p.matcher(queryFragment);
 
-        int pos = 0;
-        while (m.find()) {
-            qo.append(queryFragment.substring(pos, m.start()));
-            qo.append(processExpression(m.group(1), m.group(3), m.group(4), args));
-            pos = m.end();
-        }
-        qo.append(queryFragment.substring(pos));
+        try {
 
-        if (args.hasNext()) {
-            throw new LechugaException("not all of the arguments has been consumed for the query fragment: " + qo);
+            int pos = 0;
+            while (m.find()) {
+                qo.append(queryFragment.substring(pos, m.start()));
+                String alias = m.group(1);
+                String propertyPath = m.group(3);
+                String restOfExpression = m.group(4);
+                qo.append(processExpression(alias, propertyPath, restOfExpression, args));
+                pos = m.end();
+            }
+            qo.append(queryFragment.substring(pos));
+
+            if (args.hasNext()) {
+                throw new LechugaException("not all of the arguments has been consumed for the query fragment");
+            }
+
+        } catch (Exception e) {
+            throw new LechugaException("error in the query fragment: " + queryFragment, e);
         }
 
         return qo;
@@ -69,45 +85,47 @@ public class QueryProcessor<E> {
         EntityManager<?, ?> em = aliases.get(alias);
 
         QueryObject r = new QueryObject();
+
+        if (propertyExpression == null || propertyExpression.isEmpty()) {
+            r.append(em.getEntityModel().getTableName());
+            r.append(" ");
+            r.append(alias);
+            return r;
+
+        }
         if ("*".equals(propertyExpression)) {
             StringJoiner j = new StringJoiner(", ");
             for (var p : em.getEntityModel().getAllProperties()) {
                 j.add(p.getColumnName());
             }
             r.append(j.toString());
-        } else if (propertyExpression == null || propertyExpression.isEmpty() || propertyExpression.equals("#")) {
-            r.append(em.getEntityModel().getTableName());
-            r.append(" ");
+            return r;
+        }
+
+        if (!em.getEntityModel().getPropertyNamesMap().containsKey(propertyExpression)) {
+            throw new LechugaException("property not defined: '" + propertyExpression +
+                    "' in entity: " + em.getEntityModel().toString() +
+                    "; defined are: " + em.getEntityModel().getPropertyNamesMap());
+        }
+        EntityPropertyModel p = em.getEntityModel().getPropertyNamesMap().get(propertyExpression);
+
+        if (!"?".equals(restOfExpression)) {
             r.append(alias);
-        } else {
+            r.append(".");
+            r.append(p.getColumnName());
+        }
+        r.append(restOfExpression);
 
-            boolean hiddenPropertyName = false;
-            if (propertyExpression.startsWith(":")) {
-                propertyExpression = propertyExpression.substring(1);
-                hiddenPropertyName = true;
+        int pos = restOfExpression.indexOf("?");
+        while (pos >= 0) {
+            if (!args.hasNext()) {
+                throw new LechugaException("all of the arguments has been consumed for the query fragment");
             }
-            if (!em.getEntityModel().getPropertyNamesMap().containsKey(propertyExpression)) {
-                throw new LechugaException("property not defined: '" + propertyExpression +
-                        "' in entity: " + em.getEntityModel().toString() +
-                        "; defined are: " + em.getEntityModel().getPropertyNamesMap());
-            }
-            EntityPropertyModel p = em.getEntityModel().getPropertyNamesMap().get(propertyExpression);
+            Object nextArgument = args.next();
+            Object convertedNextArgument = p.convertValueForJdbc(nextArgument);
+            r.addArg(convertedNextArgument);
 
-            if (!hiddenPropertyName) {
-                r.append(alias);
-                r.append(".");
-                r.append(p.getColumnName());
-            }
-            r.append(restOfExpression);
-
-            int pos = restOfExpression.indexOf("?");
-            while (pos >= 0) {
-                Object nextArgument = args.next();
-                Object convertedNextArgument = p.convertValueForJdbc(nextArgument);
-                r.addArg(convertedNextArgument);
-
-                pos = restOfExpression.indexOf("?", pos + 1);
-            }
+            pos = restOfExpression.indexOf("?", pos + 1);
         }
         return r;
     }
