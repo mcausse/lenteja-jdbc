@@ -3,8 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.homs</groupId>
-	<artifactId>lenteja-jdbc</artifactId>
+	<artifactId>lenteja-jdbc-parent</artifactId>
 	<version>0.0.3-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>lenteja-jdbc</module>
+		<module>lechuga-jdbc</module>
+	</modules>
 
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>
