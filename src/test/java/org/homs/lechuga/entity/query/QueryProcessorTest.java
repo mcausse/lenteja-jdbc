@@ -111,7 +111,8 @@ class QueryProcessorTest {
 
         {
             facade.begin();
-            var r = man.createQuery("c").append("select {c.*} from {c} where {c.id.version>0}").execute().load();
+            var r = man.createQuery("c")
+                    .append("select {c.*} from {c} where {c.id.version>0}").execute().load();
             facade.rollback();
             assertThat(r).hasSize(4);
         }

@@ -86,13 +86,19 @@ public class QueryProcessor<E> {
 
         QueryObject r = new QueryObject();
 
+        /*
+         * {p} => tablename p
+         */
         if (propertyExpression == null || propertyExpression.isEmpty()) {
             r.append(em.getEntityModel().getTableName());
             r.append(" ");
             r.append(alias);
             return r;
-
         }
+
+        /*
+         * {p.*} => all mapped fields
+         */
         if ("*".equals(propertyExpression)) {
             StringJoiner j = new StringJoiner(", ");
             for (var p : em.getEntityModel().getAllProperties()) {
@@ -102,6 +108,9 @@ public class QueryProcessor<E> {
             return r;
         }
 
+        /*
+         * {p.propertyPath...}
+         */
         if (!em.getEntityModel().getPropertyNamesMap().containsKey(propertyExpression)) {
             throw new LechugaException("property not defined: '" + propertyExpression +
                     "' in entity: " + em.getEntityModel().toString() +
@@ -109,6 +118,9 @@ public class QueryProcessor<E> {
         }
         EntityPropertyModel p = em.getEntityModel().getPropertyNamesMap().get(propertyExpression);
 
+        /*
+         * {p.propertyPath?}
+         */
         if (!"?".equals(restOfExpression)) {
             r.append(alias);
             r.append(".");
