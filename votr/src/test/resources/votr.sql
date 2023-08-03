@@ -18,15 +18,16 @@ drop table votrs if exists;
 
 create table votrs (
 	votr_id smallint primary key,
-	votr_hash varchar(15) not null, 
+	votr_hash varchar(50) not null,
 	title varchar(100) not null,
 	descr varchar(500) not null,
-	creat_date timestamp not null 
+	creat_date timestamp not null,
+	creat_user_hash varchar(50) not null
 );
 
 create table users (
 	user_id integer not null primary key,
-	user_hash varchar(15) not null,
+	user_hash varchar(50) not null,
 	email varchar(100) not null,
 	alias varchar(100),
 	

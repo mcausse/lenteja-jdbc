@@ -10,7 +10,8 @@
 	<modules>
 		<module>lenteja-jdbc</module>
 		<module>lechuga-jdbc</module>
-	</modules>
+        <module>votr</module>
+    </modules>
 
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>
