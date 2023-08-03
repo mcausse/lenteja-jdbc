@@ -28,7 +28,8 @@ hs_err_pid*
 .idea/
 *.iml
 
-votr/target/
 lechuga-jdbc/target/
 lenteja-jdbc/target/
+votr/target/
+
 
