@@ -77,4 +77,17 @@ public class LechugaUser {
     public void setVotedOptionDate(String votedOptionDate) {
         this.votedOptionDate = votedOptionDate;
     }
+
+    @Override
+    public String toString() {
+        return "LechugaUser{" +
+                "userId=" + userId +
+                ", userHash='" + userHash + '\'' +
+                ", email='" + email + '\'' +
+                ", alias='" + alias + '\'' +
+                ", votrId=" + votrId +
+                ", votedOptionNumOrder='" + votedOptionNumOrder + '\'' +
+                ", votedOptionDate='" + votedOptionDate + '\'' +
+                '}';
+    }
 }

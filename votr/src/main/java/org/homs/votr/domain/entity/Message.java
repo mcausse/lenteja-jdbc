@@ -14,8 +14,8 @@ public class Message {
         this.message = message;
     }
 
-    public static Message create(User user, String message) {
-        return new Message(new Date(), user, message);
+    public static Message create(Date timestamp, User user, String message) {
+        return new Message(timestamp, user, message);
     }
 
     public Date getTimestamp() {

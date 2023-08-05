@@ -1,10 +1,14 @@
 package org.homs.votr.domain.entity;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 public class Votr {
 
+    private static Votr votrCreated;
     private final String uuid;
 
     private String name;
@@ -43,24 +47,14 @@ public class Votr {
         this.users = users;
     }
 
-    public static Votr create(String name, String description, String emailCreationUser, Date expirationDate) {
+    public static Votr create(String name, String description, Date creationDate, String emailCreationUser, Date expirationDate) {
         User creationUser = User.create(emailCreationUser);
-        return new Votr(
-                UUID.nameUUIDFromBytes((name + description + emailCreationUser).getBytes()).toString(),
-                name,
-                description,
-                new Date(),
-                creationUser,
-                expirationDate,
-                new ArrayList<>(),
-                new ArrayList<>(Arrays.asList(Message.create(creationUser, "votr created"))),
-                new ArrayList<>(Arrays.asList(creationUser))
-        );
+        return votrCreated;
     }
 
     public void addUser(String email) {
         this.users.add(User.create(email));
-        this.messages.add(Message.create(getCreationUser(), "user added: " + email));
+        this.messages.add(Message.create(new Date(), getCreationUser(), "user added: " + email));
     }
 
     public void addOption(String name, String description) {
@@ -69,7 +63,7 @@ public class Votr {
                         UUID.nameUUIDFromBytes((uuid + name + description).getBytes()).toString(),
                         name,
                         description));
-        this.messages.add(Message.create(getCreationUser(), "option added: " + name));
+        this.messages.add(Message.create(new Date(), getCreationUser(), "option added: " + name));
     }
 
     public String getUuid() {

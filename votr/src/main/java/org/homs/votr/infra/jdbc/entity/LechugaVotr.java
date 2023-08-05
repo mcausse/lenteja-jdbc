@@ -74,4 +74,16 @@ public class LechugaVotr {
     public void setCreationUserHash(String creationUserHash) {
         this.creationUserHash = creationUserHash;
     }
+
+    @Override
+    public String toString() {
+        return "LechugaVotr{" +
+                "votrId=" + votrId +
+                ", votrHash='" + votrHash + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", creationDate=" + creationDate +
+                ", creationUserHash='" + creationUserHash + '\'' +
+                '}';
+    }
 }
