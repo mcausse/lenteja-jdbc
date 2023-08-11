@@ -1,28 +1,65 @@
-//package org.homs.lechuga.repository;
-//
-//import java.util.Optional;
-//
-//public interface LechugaRepository<T, ID> {
-//
-//    <S extends T> S save(S var1);
-//
-//    <S extends T> Iterable<S> saveAll(Iterable<S> var1);
-//
-//    Optional<T> findById(ID var1);
-//
-//    boolean existsById(ID var1);
-//
-//    Iterable<T> findAll();
-//
-//    Iterable<T> findAllById(Iterable<ID> var1);
-//
-//    long count();
-//
-//    void deleteById(ID var1);
-//
-//    void delete(T var1);
-//
-//    void deleteAll(Iterable<? extends T> var1);
-//
-//    void deleteAll();
-//}
+package org.homs.lechuga.repository;
+
+import org.homs.lechuga.entity.EntityManager;
+import org.homs.lechuga.entity.Order;
+import org.homs.lechuga.entity.query.QueryProcessor;
+import org.homs.lentejajdbc.exception.EmptyResultException;
+
+import java.util.Optional;
+
+public class LechugaRepository<E, ID> {
+
+    private final EntityManager<E, ID> entityManager;
+
+    public LechugaRepository(EntityManager<E, ID> entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    public void save(E entity) {
+        entityManager.store(entity);
+    }
+
+    public void saveAll(Iterable<E> entities) {
+        entityManager.storeAll(entities);
+    }
+
+    public Optional<E> findById(ID id) {
+        try {
+            return Optional.of(entityManager.loadById(id));
+        } catch (EmptyResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    public boolean existsById(ID id) {
+        return entityManager.existsById(id);
+    }
+
+    public Iterable<E> findAll(Order... orders) {
+        return entityManager.loadAll(orders);
+    }
+
+    public Iterable<E> findByProperty(String propertyName, Object propertyValue, Order... orders) {
+        return entityManager.loadByProperty(propertyName, propertyValue, orders);
+    }
+
+    public Iterable<E> findAllById(Iterable<ID> ids) {
+        return entityManager.loadByIds(ids);
+    }
+
+    public void deleteById(ID id) {
+        entityManager.deleteById(id);
+    }
+
+    public void delete(E entity) {
+        entityManager.delete(entity);
+    }
+
+    public QueryProcessor<E> createQuery(String selfAlias) {
+        return entityManager.createQuery(selfAlias);
+    }
+
+    public EntityManager<E, ID> getEntityManager() {
+        return entityManager;
+    }
+}

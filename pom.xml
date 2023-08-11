@@ -11,6 +11,7 @@
 		<module>lenteja-jdbc</module>
 		<module>lechuga-jdbc</module>
         <module>votr</module>
+        <module>martung-utils</module>
     </modules>
 
 	<properties>

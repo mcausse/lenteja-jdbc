@@ -47,11 +47,11 @@ class QueryProcessorTest {
 
         qp
                 .addAlias("d", dogManager)
-                .append("select {d.*} from {d} where {d.name=?}", "faria");
+                .append("select {d.*} from {d} where {d.name=?} order by {d.name}", "faria");
 
 
         assertThat(qp.getQueryObject()).hasToString(
-                "select id_dog, age, chip_num, name from dog d where d.name=? -- [faria(String)]");
+                "select id_dog, age, chip_num, name from dog d where d.name=? order by d.name -- [faria(String)]");
     }
 
     @Test

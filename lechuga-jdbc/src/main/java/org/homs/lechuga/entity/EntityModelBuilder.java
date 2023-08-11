@@ -62,22 +62,28 @@ public class EntityModelBuilder {
 
     private List<EntityPropertyModel> buildPropertyModel(Class<?> rootEntityClass, Stack<BeanProperty> propertyNamesStack, BeanProperty property) {
 
-        if (property.hasAnnotation(Transient.class)) {
-            return Collections.emptyList();
-        }
+        try {
 
-        List<EntityPropertyModel> entityProperties = new ArrayList<>();
-        propertyNamesStack.push(property);
-        if (property.hasAnnotation(Embedded.class)) {
-            var childrenProperties = BeanProperty.findBeanProperties(property.getType(), null);
-            for (var childProp : childrenProperties) {
-                entityProperties.addAll(buildPropertyModel(rootEntityClass, propertyNamesStack, childProp));
+            if (property.hasAnnotation(Transient.class)) {
+                return Collections.emptyList();
             }
-        } else {
-            entityProperties.add(new EntityPropertyModel(rootEntityClass, new ArrayList<>(propertyNamesStack), conventions));
-        }
-        propertyNamesStack.pop();
 
-        return entityProperties;
+            List<EntityPropertyModel> entityProperties = new ArrayList<>();
+            propertyNamesStack.push(property);
+            if (property.hasAnnotation(Embedded.class)) {
+                var childrenProperties = BeanProperty.findBeanProperties(property.getType(), null);
+                for (var childProp : childrenProperties) {
+                    entityProperties.addAll(buildPropertyModel(rootEntityClass, propertyNamesStack, childProp));
+                }
+            } else {
+                entityProperties.add(new EntityPropertyModel(rootEntityClass, new ArrayList<>(propertyNamesStack), conventions));
+            }
+            propertyNamesStack.pop();
+
+            return entityProperties;
+
+        } catch (Exception e) {
+            throw new LechugaException("building property model for: " + propertyNamesStack, e);
+        }
     }
 }
