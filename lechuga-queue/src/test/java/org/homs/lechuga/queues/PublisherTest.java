@@ -40,7 +40,7 @@ class PublisherTest {
     }
 
     @Test
-    void name() throws InterruptedException {
+    void publishedEventIsConsumedByTheSubscriber() throws InterruptedException {
         List<Event> processedEvents = new ArrayList<>();
 
         var publisher = new Publisher(facade);
@@ -48,10 +48,10 @@ class PublisherTest {
         var event = new Event();
         event.setUuid(new UUIDUtils().createUUID(String.valueOf(System.currentTimeMillis() + System.nanoTime())));
         event.setType(getClass());
-        event.setStatus(EventState.PENDING);
+        event.setStatus(EventStatus.PENDING);
         event.setCreated(new Date());
 
-        var subscriber = new Subscriber(facade, processedEvents::add, List.of(getClass()), new DateUtil());
+        var subscriber = new Subscriber(facade, processedEvents::add, List.of(getClass(), List.class), new DateUtil());
         subscriber.start();
         Thread.sleep(300L);
 
@@ -63,16 +63,52 @@ class PublisherTest {
         Thread.sleep(2_000L);
         subscriber.stop();
 
-        // Assert that the event exists in the queue
+        // Assert that the event has been removed from the queue
         EntityManager<Event, String> entityManager = new EntityManagerBuilder(facade).build(Event.class);
         var eventExistInQueue = Transactional.runReadOnlyWithReturn(facade, () -> entityManager.existsById(event.getUuid()));
-        Assertions.assertThat(eventExistInQueue).isTrue();
-
-        // Assert that the event has status=PROCESSED
-        var event2 = Transactional.runReadOnlyWithReturn(facade, () -> entityManager.loadById(event.getUuid()));
-        assertThat(event2.getStatus()).isEqualTo(EventState.PROCESSED);
+        Assertions.assertThat(eventExistInQueue).isFalse();
 
         // Assert that the event is being processed by the consumer
         Assertions.assertThat(processedEvents).hasSize(1);
+    }
+
+
+    @Test
+    void publishedEventGeneratesError() throws InterruptedException {
+
+        var publisher = new Publisher(facade);
+
+        var event = new Event();
+        event.setUuid(new UUIDUtils().createUUID(String.valueOf(System.currentTimeMillis() + System.nanoTime())));
+        event.setType(getClass());
+        event.setStatus(EventStatus.PENDING);
+        event.setCreated(new Date());
+
+        var subscriber = new Subscriber(facade, (e) -> {
+            throw new RuntimeException("jou");
+        }, List.of(getClass()), new DateUtil());
+        subscriber.start();
+        Thread.sleep(300L);
+
+        // Act: publish
+        Transactional.run(facade, () -> {
+            publisher.publish(event);
+        });
+
+        Thread.sleep(2_000L);
+        subscriber.stop();
+
+        EntityManager<Event, String> entityManager = new EntityManagerBuilder(facade).build(Event.class);
+
+        // Assert that the event has NOT been removed from the queue
+        var event2 = Transactional.runReadOnlyWithReturn(facade, () -> entityManager.loadById(event.getUuid()));
+
+        // Assert that the event has status=PROCESSED_WITH_ERROR
+        assertThat(event2.getStatus()).isEqualTo(EventStatus.PROCESSED_WITH_ERROR);
+
+        // Assert that the event contains the cause of the error
+        assertThat(event2.getErrorMessage()).contains("jou");
+
+        System.out.println(event2);
     }
 }

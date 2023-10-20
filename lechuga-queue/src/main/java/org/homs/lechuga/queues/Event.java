@@ -19,7 +19,7 @@ public class Event {
     Date created;
 
     @Enumerated
-    EventState status;
+    EventStatus status;
 
     String errorMessage;
 
@@ -47,11 +47,11 @@ public class Event {
         this.created = created;
     }
 
-    public EventState getStatus() {
+    public EventStatus getStatus() {
         return status;
     }
 
-    public void setStatus(EventState status) {
+    public void setStatus(EventStatus status) {
         this.status = status;
     }
 

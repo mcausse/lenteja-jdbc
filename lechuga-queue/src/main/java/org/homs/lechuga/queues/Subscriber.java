@@ -44,10 +44,10 @@ public class Subscriber {
     protected void run() {
         List<Event> events = loadEventsFromQueue();
         for (var event : events) {
-            eventChangeStatus(event, EventState.PROCESSING);
+            eventChangeStatus(event, EventStatus.PROCESSING);
             try {
                 eventsConsumer.accept(event);
-                eventChangeStatus(event, EventState.PROCESSED);
+                Transactional.run(facade, () -> entityManager.delete(event));
             } catch (Throwable e) {
                 eventChangeStatusToError(event, e);
                 e.printStackTrace(); // TODO log
@@ -55,7 +55,7 @@ public class Subscriber {
         }
     }
 
-    private void eventChangeStatus(Event event, EventState state) {
+    private void eventChangeStatus(Event event, EventStatus state) {
         Transactional.run(facade, () -> {
             event.setStatus(state);
             event.setStatusChanged(dateUtil.now());
@@ -65,7 +65,7 @@ public class Subscriber {
 
     private void eventChangeStatusToError(Event event, Throwable e) {
         Transactional.run(facade, () -> {
-            event.setStatus(EventState.PROCESSED_WITH_ERROR);
+            event.setStatus(EventStatus.PROCESSED_WITH_ERROR);
             event.setStatusChanged(dateUtil.now());
             event.setErrorMessage(ExceptionUtils.toString(e));
             entityManager.update(event);
@@ -85,7 +85,7 @@ public class Subscriber {
                 q.append("{e.type?}", type);
             }
             q.append(") ");
-            q.append("and {e.status=?} ", EventState.PENDING);
+            q.append("and {e.status=?} ", EventStatus.PENDING);
             q.append("order by {e.created} asc ");
             return q.execute().load();
         });
