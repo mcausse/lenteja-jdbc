@@ -27,17 +27,4 @@ public class UserRepository extends LechugaRepository<User, Integer> {
                 .execute()
                 .load();
     }
-
-//
-//    public void create(User lechugaUser) {
-//        entityManager.store(lechugaUser);
-//    }
-//
-//    public List<User> loadByVotrId(int votrId) {
-//        return entityManager
-//                .createQuery("u")
-//                .append("select {u.*} from {u} where {u.votrId=?} ", votrId)
-//                .execute()
-//                .load();
-//    }
 }

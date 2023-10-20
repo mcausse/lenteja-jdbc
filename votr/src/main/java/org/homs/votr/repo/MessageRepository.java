@@ -20,8 +20,4 @@ public class MessageRepository extends LechugaRepository<Message, Long> {
                 .execute()
                 .load();
     }
-
-//    public void create(Message message) {
-//        getEntityManager().store(message);
-//    }
 }

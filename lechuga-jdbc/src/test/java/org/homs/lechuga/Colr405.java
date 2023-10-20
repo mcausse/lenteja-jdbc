@@ -5,8 +5,8 @@ import org.homs.lechuga.entity.anno.Id;
 
 public class Colr405 {
 
-    @Id
     @Embedded
+    @Id
     Colr405Id id;
 
     String value;

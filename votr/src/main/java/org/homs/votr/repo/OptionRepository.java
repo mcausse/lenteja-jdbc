@@ -33,9 +33,4 @@ public class OptionRepository extends LechugaRepository<Option, OptionId> {
         }
         return r + 1;
     }
-
-
-//    public void create(Option option) {
-//        getEntityManager().store(option);
-//    }
 }

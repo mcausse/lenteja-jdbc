@@ -1,6 +1,7 @@
 package io.martung;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class Result<T> {
 
@@ -32,6 +33,14 @@ public final class Result<T> {
 
     public Exception getFailureException() {
         return failureException;
+    }
+
+    public T getOrElse(Supplier<T> supplier) {
+        if (isSuccess()) {
+            return getSuccessResult();
+        } else {
+            return supplier.get();
+        }
     }
 
     public T getOrElseThrow() throws Exception {

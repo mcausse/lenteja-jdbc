@@ -154,11 +154,6 @@ public class EntityPropertyModel {
         return columnName;
     }
 
-    @Override
-    public String toString() {
-        return entityClass.getName() + "#" + propertiesPath;
-    }
-
     public Object convertValueForJdbc(Object value) {
         return columnHandler.getJdbcValue(value);
     }

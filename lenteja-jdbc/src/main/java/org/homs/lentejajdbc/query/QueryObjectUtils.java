@@ -1,5 +1,7 @@
 package org.homs.lentejajdbc.query;
 
+import java.util.StringJoiner;
+
 public class QueryObjectUtils {
 
     public static final int QUERY_STRING_LIMIT = 2000;
@@ -11,6 +13,20 @@ public class QueryObjectUtils {
         }
         return q;
     }
+
+//    public static QueryObject in(Object... values) {
+//        var q = new QueryObject();
+//        q.append("(");
+//
+//        var j = new StringJoiner(",");
+//        for (var value : values) {
+//            j.add("?");
+//            q.addArg(value);
+//        }
+//        q.append(j.toString());
+//        q.append(")");
+//        return q;
+//    }
 
     public static String toString(IQueryObject q) {
         return toString(q.getQuery(), q.getArgs());

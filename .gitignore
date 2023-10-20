@@ -31,5 +31,7 @@ hs_err_pid*
 lechuga-jdbc/target/
 lenteja-jdbc/target/
 votr/target/
+martung-utils/target/
+lechuga-queue/target/
 
 

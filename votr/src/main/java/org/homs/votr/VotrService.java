@@ -20,7 +20,8 @@ public class VotrService {
     final UUIDUtils uUIDUtils;
     final DateUtil dateUtil;
 
-    public VotrService(VotrRepository votrRepository, UserRepository userRepository, OptionRepository optionRepository, MessageRepository messageRepository, UUIDUtils uUIDUtils, DateUtil dateUtil) {
+    public VotrService(VotrRepository votrRepository, UserRepository userRepository, OptionRepository optionRepository,
+                       MessageRepository messageRepository, UUIDUtils uUIDUtils, DateUtil dateUtil) {
         this.votrRepository = votrRepository;
         this.userRepository = userRepository;
         this.optionRepository = optionRepository;
@@ -29,7 +30,11 @@ public class VotrService {
         this.dateUtil = dateUtil;
     }
 
-    public void createVotr(Votr votr, User creationUser) {
+    public Votr createVotr(String title, String description, User creationUser) {
+
+        Votr votr=new Votr();
+        votr.setTitle(title);
+        votr.setDescription(description);
 
         votr.setVotrHash(uUIDUtils.createUUID(votr.getTitle(), votr.getDescription(), creationUser.getEmail()));
         votr.setCreationDate(dateUtil.now());
@@ -47,6 +52,8 @@ public class VotrService {
                 creationUser.getUserHash(),
                 "votr has been created."
         );
+
+        return votr;
     }
 
     public void createUser(String hashVotr, String emailUser) {

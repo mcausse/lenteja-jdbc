@@ -12,6 +12,7 @@
 		<module>lechuga-jdbc</module>
         <module>votr</module>
         <module>martung-utils</module>
+        <module>lechuga-queue</module>
     </modules>
 
 	<properties>

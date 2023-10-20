@@ -88,10 +88,6 @@ class VotrServiceShould {
     void create_new_votr() {
         VotrService service = buildVotrService();
 
-        var votr = new Votr();
-        votr.setTitle("best poem");
-        votr.setDescription("best poem of all times");
-
         var user = new User();
         user.setEmail("mhc@votr.org");
 
@@ -99,7 +95,7 @@ class VotrServiceShould {
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
         // Act
-        Transactional.run(facade, () -> service.createVotr(votr, user));
+        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
 
         Mockito.verify(uUIDUtils, Mockito.times(2)).createUUID(Mockito.any());
         Mockito.verify(dateUtil, Mockito.times(2)).now();
@@ -112,17 +108,13 @@ class VotrServiceShould {
     void create_a_second_user() {
         VotrService service = buildVotrService();
 
-        var votr = new Votr();
-        votr.setTitle("best poem");
-        votr.setDescription("best poem of all times");
-
         var user = new User();
         user.setEmail("mhc@votr.org");
 
         Mockito.when(uUIDUtils.createUUID(Mockito.any())).thenReturn("12345", "67890", "ABCDEF");
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
-        Transactional.run(facade, () -> service.createVotr(votr, user));
+        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
 
         // Act
         Transactional.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
@@ -140,17 +132,13 @@ class VotrServiceShould {
     void create_2_options() {
         VotrService service = buildVotrService();
 
-        var votr = new Votr();
-        votr.setTitle("best poem");
-        votr.setDescription("best poem of all times");
-
         var user = new User();
         user.setEmail("mhc@votr.org");
 
         Mockito.when(uUIDUtils.createUUID(Mockito.any())).thenReturn("12345", "67890", "ABCDEF");
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
-        Transactional.run(facade, () -> service.createVotr(votr, user));
+        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
 
         // Act
         Transactional.run(facade, () -> {
@@ -172,10 +160,6 @@ class VotrServiceShould {
 
         VotrService service = buildVotrService();
 
-        var votr = new Votr();
-        votr.setTitle("best poem");
-        votr.setDescription("best poem of all times");
-
         var user = new User();
         user.setEmail("mhc@votr.org");
 
@@ -184,14 +168,13 @@ class VotrServiceShould {
 
 
         // Act
-        {
-            Transactional.run(facade, () -> service.createVotr(votr, user));
-            Transactional.run(facade, () -> {
-                service.createOption(votr.getVotrHash(), "the odissey", "homer");
-                service.createOption(votr.getVotrHash(), "the aeneid", "virgil");
-            });
-            Transactional.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
-        }
+
+        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
+        Transactional.run(facade, () -> {
+            service.createOption(votr.getVotrHash(), "the odissey", "homer");
+            service.createOption(votr.getVotrHash(), "the aeneid", "virgil");
+        });
+        Transactional.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
 
         Mockito.verify(uUIDUtils, Mockito.times(3)).createUUID(Mockito.any());
         Mockito.verify(dateUtil, Mockito.times(5)).now();
@@ -215,23 +198,18 @@ class VotrServiceShould {
 
         VotrService service = buildVotrService();
 
-        var votr = new Votr();
-        votr.setTitle("best poem");
-        votr.setDescription("best poem of all times");
-
         var user = new User();
         user.setEmail("mhc@votr.org");
 
         Mockito.when(uUIDUtils.createUUID(Mockito.any())).thenReturn("12345", "67890", "ABCDEF");
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
-        Transactional.run(facade, () -> service.createVotr(votr, user));
+        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
         Transactional.run(facade, () -> {
             service.createOption(votr.getVotrHash(), "the odissey", "homer");
             service.createOption(votr.getVotrHash(), "the aeneid", "virgil");
         });
         Transactional.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
-
 
         // Act
         VotrService.VotrDto r = Transactional.runWithReturn(facade, () -> service.loadVotr(votr.getVotrHash(), user.getUserHash()));
