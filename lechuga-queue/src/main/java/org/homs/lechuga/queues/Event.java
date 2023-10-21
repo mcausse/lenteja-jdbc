@@ -21,8 +21,6 @@ public class Event {
     @Enumerated
     EventStatus status;
 
-    String errorMessage;
-
     @Handler(value = DateStringHandler.class, args = "yyyyMMdd HH:mm:ss.SSS")
     Date statusChanged;
 
@@ -79,21 +77,12 @@ public class Event {
         this.payload = payload;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
     @Override
     public String toString() {
         return "Event{" +
                 "uuid='" + uuid + '\'' +
                 ", created=" + created +
                 ", state=" + status +
-                ", errorMessage='" + errorMessage + '\'' +
                 ", statusChanged=" + statusChanged +
                 ", type=" + type +
                 ", payload='" + payload + '\'' +
