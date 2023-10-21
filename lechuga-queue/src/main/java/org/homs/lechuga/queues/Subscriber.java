@@ -24,12 +24,12 @@ public class Subscriber {
     private final Timer timer;
     private final Map<Class<?>, List<Consumer<Event>>> consumers;
 
-    public Subscriber(DataAccesFacade facade, DateUtil dateUtil) {
+    public Subscriber(DataAccesFacade facade, DateUtil dateUtil, int refreshPeriodMs) {
         this.facade = facade;
         this.transactionalOps = new TransactionalOps(facade);
         this.entityManager = new EntityManagerBuilder(facade).build(Event.class);
         this.dateUtil = dateUtil;
-        this.timer = new Timer(500 /* TODO refreshTime/Period */, e -> run());
+        this.timer = new Timer(refreshPeriodMs, e -> run());
         this.consumers = new LinkedHashMap<>();
     }
 

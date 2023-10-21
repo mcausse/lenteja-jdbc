@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions;
 import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityManagerBuilder;
 import org.homs.lechuga.queues.util.DateUtil;
-import org.homs.lechuga.queues.util.UUIDUtils;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.JdbcDataAccesFacade;
 import org.homs.lentejajdbc.TransactionalUtils;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PublisherTest {
 
     final DataAccesFacade facade;
+
+    final GsonEvents gsonEvents = new GsonEvents();
 
     public PublisherTest() {
         final JDBCDataSource ds = new JDBCDataSource();
@@ -45,14 +45,10 @@ class PublisherTest {
 
         var publisher = new Publisher(facade);
 
-        var event = new Event();
-        event.setUuid(new UUIDUtils().createUUID(String.valueOf(System.currentTimeMillis() + System.nanoTime())));
-        event.setType(getClass());
-        event.setStatus(EventStatus.PENDING);
-        event.setCreated(new Date());
+        var event = gsonEvents.of(new Dog(123L, "chucho"));
 
-        var subscriber = new Subscriber(facade, new DateUtil());
-        subscriber.register(getClass(), processedEvents::add);
+        var subscriber = new Subscriber(facade, new DateUtil(), 500);
+        subscriber.register(Dog.class, processedEvents::add);
         subscriber.register(List.class, processedEvents::add);
         subscriber.start();
         Thread.sleep(300L);
@@ -72,22 +68,19 @@ class PublisherTest {
 
         // Assert that the event is being processed by the consumer
         Assertions.assertThat(processedEvents).hasSize(1);
+        // Assert that the event payload is deserialized
+        Assertions.assertThat(gsonEvents.getPayloadObject(processedEvents.get(0)).toString()).isEqualTo("Dog{id=123, name='chucho'}");
     }
-
 
     @Test
     void publishedEventGeneratesError() throws InterruptedException {
 
         var publisher = new Publisher(facade);
 
-        var event = new Event();
-        event.setUuid(new UUIDUtils().createUUID(String.valueOf(System.currentTimeMillis() + System.nanoTime())));
-        event.setType(getClass());
-        event.setStatus(EventStatus.PENDING);
-        event.setCreated(new Date());
+        var event = gsonEvents.of(new Dog(123L, "chucho"));
 
-        var subscriber = new Subscriber(facade, new DateUtil());
-        subscriber.register(getClass(), (e) -> {
+        var subscriber = new Subscriber(facade, new DateUtil(), 500);
+        subscriber.register(Dog.class, (e) -> {
             throw new RuntimeException("jou");
         });
         subscriber.start();
