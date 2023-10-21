@@ -6,7 +6,7 @@ import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityManagerBuilder;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.JdbcDataAccesFacade;
-import org.homs.lentejajdbc.Transactional;
+import org.homs.lentejajdbc.TransactionalUtils;
 import org.homs.lentejajdbc.extractor.MapRowMapper;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
 import org.homs.votr.ent.Message;
@@ -84,7 +84,7 @@ public class VotrServiceJucumberTest {
         Mockito.when(uUIDUtils.createUUID(Mockito.any())).thenReturn("12345", "67890");
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
-        this.votr = Transactional.runWithReturn(facade, () -> votrService.createVotr(votrName, votrName + " desc", user));
+        this.votr = TransactionalUtils.runWithReturn(facade, () -> votrService.createVotr(votrName, votrName + " desc", user));
 
 //        Mockito.verify(uUIDUtils, Mockito.times(2)).createUUID(Mockito.any());
 //        Mockito.verify(dateUtil, Mockito.times(2)).now();
@@ -104,14 +104,14 @@ public class VotrServiceJucumberTest {
         Mockito.when(uUIDUtils.createUUID(Mockito.any())).thenReturn("ABCDEF");
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
-        Transactional.run(facade, () -> votrService.createUser(votr.getVotrHash(), "ave@votr.org"));
+        TransactionalUtils.run(facade, () -> votrService.createUser(votr.getVotrHash(), "ave@votr.org"));
 
 //        Mockito.verify(uUIDUtils, Mockito.times(1)).createUUID(Mockito.any());
 //        Mockito.verify(dateUtil, Mockito.times(1)).now();
     }
 
     private List<Map<String, Object>> queryForTest(Class entityClass, String query, Object... args) {
-        return Transactional.runReadOnlyWithReturn(facade, () -> {
+        return TransactionalUtils.runAsReadOnlyWithReturn(facade, () -> {
             EntityManager<?, ?> votrEm = new EntityManagerBuilder(facade).build(entityClass);
             return votrEm.createQuery("o").append(query, args).execute().loadScalars(new MapRowMapper());
         });

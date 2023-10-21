@@ -7,6 +7,6 @@ create table events_queue (
 	status varchar(20) not null,
 	error_message varchar(5000),
 	status_changed varchar(50),
-	type varchar(20) not null,
+	type varchar(50) not null,
 	payload varchar(5000)
 );

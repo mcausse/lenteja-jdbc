@@ -2,7 +2,7 @@ package org.homs.lentejajdbc;
 
 import java.util.function.Supplier;
 
-public class Transactional {
+public class TransactionalUtils {
 
     public static void run(DataAccesFacade facade, Runnable r) {
         facade.begin();
@@ -15,7 +15,7 @@ public class Transactional {
         }
     }
 
-    public static void runReadOnly(DataAccesFacade facade, Runnable r) {
+    public static void runAsReadOnly(DataAccesFacade facade, Runnable r) {
         facade.begin();
         try {
             r.run();
@@ -38,7 +38,7 @@ public class Transactional {
         }
     }
 
-    public static <T> T runReadOnlyWithReturn(DataAccesFacade facade, Supplier<T> r) {
+    public static <T> T runAsReadOnlyWithReturn(DataAccesFacade facade, Supplier<T> r) {
         facade.begin();
         try {
             return r.get();

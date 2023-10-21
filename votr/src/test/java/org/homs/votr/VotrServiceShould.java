@@ -4,7 +4,7 @@ import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityManagerBuilder;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.JdbcDataAccesFacade;
-import org.homs.lentejajdbc.Transactional;
+import org.homs.lentejajdbc.TransactionalUtils;
 import org.homs.lentejajdbc.extractor.MapRowMapper;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
 import org.homs.votr.ent.Message;
@@ -74,7 +74,7 @@ class VotrServiceShould {
     }
 
     private List<Map<String, Object>> queryForTest(Class entityClass, String query, Object... args) {
-        return Transactional.runReadOnlyWithReturn(facade, () -> {
+        return TransactionalUtils.runAsReadOnlyWithReturn(facade, () -> {
             EntityManager<?, ?> votrEm = new EntityManagerBuilder(facade).build(entityClass);
             return votrEm
                     .createQuery("o")
@@ -95,7 +95,7 @@ class VotrServiceShould {
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
         // Act
-        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
+        Votr votr = TransactionalUtils.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
 
         Mockito.verify(uUIDUtils, Mockito.times(2)).createUUID(Mockito.any());
         Mockito.verify(dateUtil, Mockito.times(2)).now();
@@ -114,10 +114,10 @@ class VotrServiceShould {
         Mockito.when(uUIDUtils.createUUID(Mockito.any())).thenReturn("12345", "67890", "ABCDEF");
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
-        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
+        Votr votr = TransactionalUtils.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
 
         // Act
-        Transactional.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
+        TransactionalUtils.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
 
         Mockito.verify(uUIDUtils, Mockito.times(3)).createUUID(Mockito.any());
         Mockito.verify(dateUtil, Mockito.times(3)).now();
@@ -138,10 +138,10 @@ class VotrServiceShould {
         Mockito.when(uUIDUtils.createUUID(Mockito.any())).thenReturn("12345", "67890", "ABCDEF");
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
-        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
+        Votr votr = TransactionalUtils.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
 
         // Act
-        Transactional.run(facade, () -> {
+        TransactionalUtils.run(facade, () -> {
             service.createOption(votr.getVotrHash(), "the odissey", "homer");
             service.createOption(votr.getVotrHash(), "the aeneid", "virgil");
         });
@@ -169,12 +169,12 @@ class VotrServiceShould {
 
         // Act
 
-        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
-        Transactional.run(facade, () -> {
+        Votr votr = TransactionalUtils.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
+        TransactionalUtils.run(facade, () -> {
             service.createOption(votr.getVotrHash(), "the odissey", "homer");
             service.createOption(votr.getVotrHash(), "the aeneid", "virgil");
         });
-        Transactional.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
+        TransactionalUtils.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
 
         Mockito.verify(uUIDUtils, Mockito.times(3)).createUUID(Mockito.any());
         Mockito.verify(dateUtil, Mockito.times(5)).now();
@@ -204,15 +204,15 @@ class VotrServiceShould {
         Mockito.when(uUIDUtils.createUUID(Mockito.any())).thenReturn("12345", "67890", "ABCDEF");
         Mockito.when(dateUtil.now()).thenReturn(new Date(0L));
 
-        Votr votr = Transactional.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
-        Transactional.run(facade, () -> {
+        Votr votr = TransactionalUtils.runWithReturn(facade, () -> service.createVotr("best poem", "best poem of all times", user));
+        TransactionalUtils.run(facade, () -> {
             service.createOption(votr.getVotrHash(), "the odissey", "homer");
             service.createOption(votr.getVotrHash(), "the aeneid", "virgil");
         });
-        Transactional.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
+        TransactionalUtils.run(facade, () -> service.createUser(votr.getVotrHash(), "ave@votr.org"));
 
         // Act
-        VotrService.VotrDto r = Transactional.runWithReturn(facade, () -> service.loadVotr(votr.getVotrHash(), user.getUserHash()));
+        VotrService.VotrDto r = TransactionalUtils.runWithReturn(facade, () -> service.loadVotr(votr.getVotrHash(), user.getUserHash()));
 
         assertThat(r).hasToString(
                 "VotrDto{votr=Votr{votrId=100, votrHash='12345', title='best poem', description='best poem of all times', creationDate=1970-01-01 01:00:00.0, creationUserHash='67890'}, " +

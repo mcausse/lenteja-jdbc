@@ -7,7 +7,7 @@ import org.homs.lechuga.queues.util.DateUtil;
 import org.homs.lechuga.queues.util.UUIDUtils;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.JdbcDataAccesFacade;
-import org.homs.lentejajdbc.Transactional;
+import org.homs.lentejajdbc.TransactionalUtils;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +33,7 @@ class PublisherTest {
 
     @BeforeEach
     public void before() {
-        Transactional.run(facade, () -> {
+        TransactionalUtils.run(facade, () -> {
             SqlScriptExecutor sql = new SqlScriptExecutor(facade);
             sql.runFromClasspath("lechuga-queue.sql");
         });
@@ -51,12 +51,14 @@ class PublisherTest {
         event.setStatus(EventStatus.PENDING);
         event.setCreated(new Date());
 
-        var subscriber = new Subscriber(facade, processedEvents::add, List.of(getClass(), List.class), new DateUtil());
+        var subscriber = new Subscriber(facade, new DateUtil());
+        subscriber.register(getClass(), processedEvents::add);
+        subscriber.register(List.class, processedEvents::add);
         subscriber.start();
         Thread.sleep(300L);
 
         // Act: publish
-        Transactional.run(facade, () -> {
+        TransactionalUtils.run(facade, () -> {
             publisher.publish(event);
         });
 
@@ -65,7 +67,7 @@ class PublisherTest {
 
         // Assert that the event has been removed from the queue
         EntityManager<Event, String> entityManager = new EntityManagerBuilder(facade).build(Event.class);
-        var eventExistInQueue = Transactional.runReadOnlyWithReturn(facade, () -> entityManager.existsById(event.getUuid()));
+        var eventExistInQueue = TransactionalUtils.runAsReadOnlyWithReturn(facade, () -> entityManager.existsById(event.getUuid()));
         Assertions.assertThat(eventExistInQueue).isFalse();
 
         // Assert that the event is being processed by the consumer
@@ -84,14 +86,15 @@ class PublisherTest {
         event.setStatus(EventStatus.PENDING);
         event.setCreated(new Date());
 
-        var subscriber = new Subscriber(facade, (e) -> {
+        var subscriber = new Subscriber(facade, new DateUtil());
+        subscriber.register(getClass(), (e) -> {
             throw new RuntimeException("jou");
-        }, List.of(getClass()), new DateUtil());
+        });
         subscriber.start();
         Thread.sleep(300L);
 
         // Act: publish
-        Transactional.run(facade, () -> {
+        TransactionalUtils.run(facade, () -> {
             publisher.publish(event);
         });
 
@@ -101,7 +104,7 @@ class PublisherTest {
         EntityManager<Event, String> entityManager = new EntityManagerBuilder(facade).build(Event.class);
 
         // Assert that the event has NOT been removed from the queue
-        var event2 = Transactional.runReadOnlyWithReturn(facade, () -> entityManager.loadById(event.getUuid()));
+        var event2 = TransactionalUtils.runAsReadOnlyWithReturn(facade, () -> entityManager.loadById(event.getUuid()));
 
         // Assert that the event has status=PROCESSED_WITH_ERROR
         assertThat(event2.getStatus()).isEqualTo(EventStatus.PROCESSED_WITH_ERROR);

@@ -13,7 +13,10 @@ public class ClassStringHandler implements ColumnHandler {
         if (value == null) {
             return null;
         }
-        return value.getClass().getName();
+        if (!(value instanceof Class)) {
+            throw new LechugaException("expected a Class type, but: " + value.getClass().getName());
+        }
+        return ((Class<?>) value).getName();
     }
 
     @Override
@@ -28,5 +31,4 @@ public class ClassStringHandler implements ColumnHandler {
             throw new LechugaException("for class: " + v, e);
         }
     }
-
 }
