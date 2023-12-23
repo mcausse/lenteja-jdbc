@@ -61,11 +61,9 @@ public class LentejaTest {
 
             assertEquals("Pizza [idPizza=null, name=napolitana, price=10.25]", napolitana.toString());
 
-            QueryObject q = new QueryObject();
-            q.append("INSERT INTO pizzas (name, price) VALUES (?,?)");
-            q.addArg(napolitana.name);
-            q.addArg(napolitana.price);
-            facade.update(q);
+            facade.update(QueryObject.of(
+                    "INSERT INTO pizzas (name, price) VALUES (?,?)", napolitana.name, napolitana.price)
+            );
 
             napolitana.idPizza = facade.loadUnique(new QueryObject("call identity()"), (rs) -> rs.getLong(1));
             assertEquals("Pizza [idPizza=10, name=napolitana, price=10.25]", napolitana.toString());

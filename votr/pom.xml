@@ -24,6 +24,12 @@
             <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>org.homs</groupId>
+            <artifactId>lechuga-queue</artifactId>
+            <version>0.0.3-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.homs.jucumber</groupId>
             <artifactId>jucumber</artifactId>
             <version>0.0.1-SNAPSHOT</version>

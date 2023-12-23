@@ -15,6 +15,14 @@ public class LechugaRepository<E, ID> {
         this.entityManager = entityManager;
     }
 
+    public void insert(E entity) {
+        entityManager.insert(entity);
+    }
+
+    public void update(E entity) {
+        entityManager.update(entity);
+    }
+
     public void save(E entity) {
         entityManager.store(entity);
     }

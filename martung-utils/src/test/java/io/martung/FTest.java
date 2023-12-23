@@ -3,7 +3,6 @@ package io.martung;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -134,14 +133,40 @@ class FTest {
 
     @Test
     void projectMapEntries() {
-        Map<Integer, String> m = F.enmap(
+        Map<Integer, String> m = F.enmap(List.of(
                 F.enpair(1, "one"),
                 F.enpair(2, "two"),
                 F.enpair(3, "three")
-        );
+        ));
 
         List<String> r = F.projectMapEntries(m, (k, v) -> k + ":" + v);
 
         assertThat(r).hasToString("[1:one, 2:two, 3:three]");
+    }
+
+    @Test
+    void everyAnyList() {
+
+
+        assertThat(F.any(List.of(1, 2, 3, 4, 5), o -> o.getClass().equals(Integer.class))).isTrue();
+        assertThat(F.every(List.of(1, 2, 3, 4, 5), o -> o.getClass().equals(Integer.class))).isTrue();
+
+        assertThat(F.any(List.of(1L, 2, 3, 4, 5), o -> o.getClass().equals(Integer.class))).isTrue();
+        assertThat(F.every(List.of(1L, 2, 3, 4, 5), o -> o.getClass().equals(Integer.class))).isFalse();
+    }
+
+    @Test
+    void everyAnyMap() {
+        Map<Integer, String> m = F.enmap(List.of(
+                F.enpair(1, "one"),
+                F.enpair(2, "two"),
+                F.enpair(3, "three")
+        ));
+
+        assertThat(F.any(m, (k, v) -> true)).isTrue();
+        assertThat(F.every(m, (k, v) -> true)).isTrue();
+
+        assertThat(F.any(m, (k, v) -> v.equals("two"))).isTrue();
+        assertThat(F.every(m, (k, v) -> v.equals("two"))).isFalse();
     }
 }

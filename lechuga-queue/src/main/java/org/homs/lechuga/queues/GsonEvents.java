@@ -1,9 +1,9 @@
 package org.homs.lechuga.queues;
 
 import com.google.gson.Gson;
-import org.homs.lechuga.queues.util.UUIDUtils;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class GsonEvents {
 
@@ -11,8 +11,7 @@ public class GsonEvents {
 
     public Event of(Object payload) {
         var event = new Event();
-        event.setUuid(new UUIDUtils().randomUUID());
-        event.setStatus(EventStatus.PENDING);
+        event.setUuid(UUID.randomUUID().toString());
         event.setCreated(new Date());
 
         event.setType(payload.getClass());

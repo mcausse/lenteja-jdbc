@@ -1,18 +1,20 @@
 package org.homs.lechuga.queues;
 
-import org.homs.lechuga.entity.EntityManager;
-import org.homs.lechuga.entity.EntityManagerBuilder;
-import org.homs.lentejajdbc.DataAccesFacade;
-
 public class Publisher {
 
-    private final EntityManager<Event, String> entityManager;
+    private final EventsRepository eventsRepository;
 
-    public Publisher(DataAccesFacade facade) {
-        this.entityManager = new EntityManagerBuilder(facade).build(Event.class);
+    public Publisher(EventsRepository eventsRepository) {
+        this.eventsRepository = eventsRepository;
     }
 
     public void publish(Event event) {
-        entityManager.insert(event);
+        this.eventsRepository.insert(event);
+    }
+
+    public void publishAll(Iterable<Event> events) {
+        for (var event : events) {
+            this.eventsRepository.insert(event);
+        }
     }
 }

@@ -19,6 +19,15 @@ public class QueryObject implements IQueryObject {
         this.query.append(sqlFragment);
     }
 
+    public static IQueryObject of(String query, Object... arguments) {
+        var r = new QueryObject();
+        r.append(query);
+        for (var argument : arguments) {
+            r.addArg(argument);
+        }
+        return r;
+    }
+
     public void append(String sqlFragment) {
         this.query.append(sqlFragment);
     }

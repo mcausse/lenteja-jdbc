@@ -9,22 +9,9 @@ import java.util.function.Consumer;
 
 public class Subscriber {
 
-    public static class EventsConsumer {
-
-        public final String consumerRef;
-        public final Class<?> eventTypeToConsume;
-        public final Consumer<Event> consumer;
-
-        public EventsConsumer(String consumerRef, Class<?> eventTypeToConsume, Consumer<Event> consumer) {
-            this.consumerRef = consumerRef;
-            this.eventTypeToConsume = eventTypeToConsume;
-            this.consumer = consumer;
-        }
-    }
-
     private final EventsRepository eventsRepository;
     private final Timer timer;
-    private final Map<Class<?>, List<EventsConsumer>> eventConsumers;
+    private final Map<Class<?>, List<Consumer<Event>>> eventConsumers;
 
     public Subscriber(EventsRepository eventsRepository, int refreshPeriodMs) {
         this.eventsRepository = eventsRepository;
@@ -32,12 +19,11 @@ public class Subscriber {
         this.eventConsumers = new LinkedHashMap<>();
     }
 
-    public void register(EventsConsumer consumer) {
-        Class<?> eventType = consumer.eventTypeToConsume;
+    public void subscribe(Class<?> eventType, Consumer<Event> eventConsumer) {
         if (!eventConsumers.containsKey(eventType)) {
             eventConsumers.put(eventType, new ArrayList<>());
         }
-        eventConsumers.get(eventType).add(consumer);
+        eventConsumers.get(eventType).add(eventConsumer);
     }
 
     public void start() {
@@ -49,30 +35,22 @@ public class Subscriber {
     }
 
     protected void run() {
-        List<Event> events = eventsRepository.loadEventsFromQueue(eventConsumers.keySet(), EventStatus.PENDING);
+        List<Event> events = eventsRepository.loadEventsFromQueue(eventConsumers.keySet());
         for (var event : events) {
             processEvent(event);
         }
     }
 
     protected void processEvent(Event event) {
-        boolean eventProcessingHasErrors = false;
-        eventsRepository.eventChangeStatus(event, EventStatus.PROCESSING);
         if (eventConsumers.containsKey(event.getType())) {
             for (var consumer : eventConsumers.get(event.getType())) {
                 try {
-                    consumer.consumer.accept(event);
-                    // TODO si ok=> borrar possibles errors pq el retry ha funcat
+                    consumer.accept(event);
                 } catch (Throwable e) {
-                    eventProcessingHasErrors = true;
-                    eventsRepository.eventChangeStatusToError(event, e, consumer.consumerRef);
                     e.printStackTrace(); // TODO log
                 }
             }
         }
-        if (!eventProcessingHasErrors) {
-            eventsRepository.delete(event);
-        }
+        eventsRepository.delete(event);
     }
-
 }

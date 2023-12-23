@@ -27,12 +27,24 @@ public final class Result<T> {
         return success;
     }
 
+    public boolean isFailed() {
+        return !success;
+    }
+
     public T getSuccessResult() {
         return successResult;
     }
 
     public Exception getFailureException() {
         return failureException;
+    }
+
+    public T getOrElse(T defaultValue) {
+        if (isSuccess()) {
+            return getSuccessResult();
+        } else {
+            return defaultValue;
+        }
     }
 
     public T getOrElse(Supplier<T> supplier) {
