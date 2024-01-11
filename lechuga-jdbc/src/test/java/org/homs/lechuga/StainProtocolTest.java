@@ -1,5 +1,7 @@
 package org.homs.lechuga;
 
+import lombok.Data;
+import lombok.Getter;
 import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityManagerBuilder;
 import org.homs.lechuga.entity.anno.*;
@@ -19,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class StainProtocolTest {
 
-
+    @Data
     @Table("stain_protocol")
     public static class StainProtocol {
 
@@ -29,57 +31,40 @@ public class StainProtocolTest {
 
         String name;
 
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
+//        public Long getId() {
+//            return id;
+//        }
+//
+//        public void setId(Long id) {
+//            this.id = id;
+//        }
+//
+//        public String getName() {
+//            return name;
+//        }
+//
+//        public void setName(String name) {
+//            this.name = name;
+//        }
     }
 
+    @Getter
+    @Data
     @Table("adv_stain_protocol")
     public static class AdvancedStainProtocol {
 
+        @Data
         public static class AdvancedStainProtocolId {
 
             String host;
 
             @Column("id_prot")
             Long idStain;
-
-            public String getHost() {
-                return host;
-            }
-
-            public void setHost(String host) {
-                this.host = host;
-            }
-
-            public Long getIdStain() {
-                return idStain;
-            }
-
-            public void setIdStain(Long idStain) {
-                this.idStain = idStain;
-            }
         }
 
         @Id
         @Embedded
         AdvancedStainProtocolId id;
-
-        public AdvancedStainProtocolId getId() {
-            return id;
-        }
 
         public void setId(AdvancedStainProtocolId id) {
             this.id = id;
@@ -106,7 +91,7 @@ public class StainProtocolTest {
         });
     }
 
-    class ProtocolsRepository {
+    static class ProtocolsRepository {
 
         final EntityManager<StainProtocol, Long> stainProtEntityManager;
         final EntityManager<AdvancedStainProtocol, AdvancedStainProtocol.AdvancedStainProtocolId> advStainProtEntityManager;

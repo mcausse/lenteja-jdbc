@@ -1,33 +1,16 @@
 package org.homs.lechuga;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Colr405Id {
 
-    String guid;
-    Integer version;
-
-    public Colr405Id() {
-    }
-
-    public Colr405Id(String guid, Integer version) {
-        this.guid = guid;
-        this.version = version;
-    }
-
-    public String getGuid() {
-        return guid;
-    }
-
-    public void setGuid(String guid) {
-        this.guid = guid;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
+    private String guid;
+    private Integer version;
 
     @Override
     public String toString() {

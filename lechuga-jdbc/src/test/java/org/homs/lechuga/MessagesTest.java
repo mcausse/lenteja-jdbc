@@ -1,5 +1,6 @@
 package org.homs.lechuga;
 
+import lombok.Getter;
 import org.assertj.core.api.Assertions;
 import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityManagerBuilder;
@@ -22,6 +23,7 @@ public class MessagesTest {
 
     public enum EDirection {IN, OUT}
 
+    @Getter
     @Table("messages")
     public static class Message {
         @Id
@@ -40,32 +42,16 @@ public class MessagesTest {
             return r;
         }
 
-        public String getUuid() {
-            return uuid;
-        }
-
         public void setUuid(String uuid) {
             this.uuid = uuid;
-        }
-
-        public EDirection getDirection() {
-            return direction;
         }
 
         public void setDirection(EDirection direction) {
             this.direction = direction;
         }
 
-        public String getBody() {
-            return body;
-        }
-
         public void setBody(String body) {
             this.body = body;
-        }
-
-        public String getParentUuid() {
-            return parentUuid;
         }
 
         public void setParentUuid(String parentUuid) {

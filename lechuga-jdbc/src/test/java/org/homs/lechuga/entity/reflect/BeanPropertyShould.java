@@ -1,5 +1,6 @@
 package org.homs.lechuga.entity.reflect;
 
+import lombok.Getter;
 import org.homs.lechuga.Dog;
 import org.junit.jupiter.api.Test;
 
@@ -11,12 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class BeanPropertyShould {
 
+    @Getter
     public static class ExtendedDog extends Dog {
         String extraField;
-
-        public String getExtraField() {
-            return extraField;
-        }
 
         public void setExtraField(String extraField) {
             this.extraField = extraField;

@@ -1,5 +1,6 @@
 package org.homs.lechuga.entity;
 
+import lombok.Data;
 import org.homs.lechuga.Dog;
 import org.homs.lechuga.Person;
 import org.homs.lechuga.entity.anno.Embedded;
@@ -21,6 +22,7 @@ class EntityManagerModelBuilderShould {
                         .collect(Collectors.toSet())).toString();
     }
 
+    @Data
     public static class PersonDog {
 
         @Id
@@ -31,30 +33,6 @@ class EntityManagerModelBuilderShould {
 
         @Embedded
         Dog dog;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public Person getPerson() {
-            return person;
-        }
-
-        public void setPerson(Person person) {
-            this.person = person;
-        }
-
-        public Dog getDog() {
-            return dog;
-        }
-
-        public void setDog(Dog dog) {
-            this.dog = dog;
-        }
 
         @Override
         public String toString() {
@@ -118,9 +96,9 @@ class EntityManagerModelBuilderShould {
         var r = new EntityModelBuilder().build(PersonDog.class);
         var prop = r.getAllProperties().stream()
                 .filter(p -> p.getPropertiesPath().equals("person.name.firstName")).
-                        reduce((a, b) -> {
-                            throw new IllegalStateException("Multiple elements: " + a + ", " + b);
-                        })
+                reduce((a, b) -> {
+                    throw new IllegalStateException("Multiple elements: " + a + ", " + b);
+                })
                 .get();
         var personDog = new PersonDog();
         assertThat(personDog).hasToString("PersonDog{person=null, dog=null}");
