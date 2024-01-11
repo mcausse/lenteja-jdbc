@@ -3,6 +3,7 @@ package org.homs.lechuga.entity;
 import org.homs.lechuga.*;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.JdbcDataAccesFacade;
+import org.homs.lentejajdbc.TransactionalUtils;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,16 +27,11 @@ class EntityManagerShould {
 
     @BeforeEach
     public void before() {
-        facade.begin();
-        try {
+        TransactionalUtils.run(facade, () -> {
             SqlScriptExecutor sql = new SqlScriptExecutor(facade);
             sql.runFromClasspath("dogs_and_persons.sql");
             sql.runFromClasspath("colr405.sql");
-            facade.commit();
-        } catch (Exception e) {
-            facade.rollback();
-            throw e;
-        }
+        });
     }
 
     @Test
