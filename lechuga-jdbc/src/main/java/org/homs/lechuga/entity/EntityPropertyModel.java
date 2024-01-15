@@ -66,7 +66,7 @@ public class EntityPropertyModel {
             if (!Enum.class.isAssignableFrom(lastProperty.getType())) {
                 throw new LechugaException("@" + Enumerated.class.getName() + " present in property '" + lastProperty + "' but is of type " + lastProperty.getType().getName());
             }
-            return new EnumColumnHandler((Class<? extends Enum>) lastProperty.getType());
+            return new EnumColumnHandler((Class<? extends Enum<?>>) lastProperty.getType());
         }
 
         if (lastProperty.hasAnnotation(Handler.class)) {

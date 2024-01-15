@@ -14,7 +14,7 @@ public class DefaultConventions implements Conventions {
 
     // això va mooolt més ràpid que fent-ho amb regexp
     protected String camelCaseToSqlCase(final String s) {
-        final StringBuffer strb = new StringBuffer(s.length() + 5);
+        final StringBuilder strb = new StringBuilder(s.length() + 5);
         strb.append(s.charAt(0));
         for (int i = 1; i < s.length(); i++) {
             final char c = s.charAt(i);

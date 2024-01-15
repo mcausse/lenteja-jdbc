@@ -156,6 +156,16 @@ class FTest {
     }
 
     @Test
+    void everyAnyList2() {
+        final List<Integer> iterable = List.of(1, 2, 3, 4, 5);
+
+        assertThat(F.any(iterable, o -> o % 2 == 0)).isTrue();
+        assertThat(F.any(iterable, o -> o > 100)).isFalse();
+        assertThat(F.every(iterable, o -> o % 2 == 0)).isFalse();
+        assertThat(F.every(iterable, o -> o > 100)).isFalse();
+    }
+
+    @Test
     void everyAnyMap() {
         Map<Integer, String> m = F.enmap(List.of(
                 F.enpair(1, "one"),
@@ -168,5 +178,8 @@ class FTest {
 
         assertThat(F.any(m, (k, v) -> v.equals("two"))).isTrue();
         assertThat(F.every(m, (k, v) -> v.equals("two"))).isFalse();
+
+        assertThat(F.any(m, (k, v) -> v.equals("jou"))).isFalse();
+        assertThat(F.every(m, (k, v) -> v.equals("jou"))).isFalse();
     }
 }

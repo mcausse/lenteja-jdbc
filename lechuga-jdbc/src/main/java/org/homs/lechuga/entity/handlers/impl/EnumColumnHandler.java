@@ -5,7 +5,6 @@ import org.homs.lechuga.entity.handlers.ColumnHandler;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
 public class EnumColumnHandler implements ColumnHandler {
 
     final Class<? extends Enum> enumClass;

@@ -30,6 +30,7 @@ class TryShould {
         Result<Void> r = Try.forResult(this::voidSqlOperation);
 
         assertThat(r.isSuccess()).isTrue();
+        assertThat(r.isFailed()).isFalse();
         assertThat(r.getSuccessResult()).isNull();
         assertThat(r.getFailureException()).isNull();
     }
@@ -40,6 +41,7 @@ class TryShould {
         Result<Void> r = Try.forResult(this::voidSqlOperationThatFails);
 
         assertThat(r.isSuccess()).isFalse();
+        assertThat(r.isFailed()).isTrue();
         assertThat(r.getSuccessResult()).isNull();
         assertThat(r.getFailureException()).isNotNull().isInstanceOf(SQLException.class).hasMessage("jou");
     }
@@ -50,6 +52,7 @@ class TryShould {
         Result<Long> r = Try.forResult(this::sqlOperation);
 
         assertThat(r.isSuccess()).isTrue();
+        assertThat(r.isFailed()).isFalse();
         assertThat(r.getSuccessResult()).isEqualTo(123L);
         assertThat(r.getFailureException()).isNull();
 
@@ -63,6 +66,7 @@ class TryShould {
         Result<Long> r = Try.forResult(this::sqlOperationThatFails);
 
         assertThat(r.isSuccess()).isFalse();
+        assertThat(r.isFailed()).isTrue();
         assertThat(r.getSuccessResult()).isNull();
         assertThat(r.getFailureException()).isNotNull().isInstanceOf(SQLException.class).hasMessage("jou2");
 

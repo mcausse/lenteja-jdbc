@@ -14,6 +14,15 @@ import java.util.regex.Pattern;
 
 public class QueryProcessor<E> {
 
+    protected static final Pattern QUERY_EXPR_PATTERN = Pattern.compile("\\{" +
+            "(\\w+)" +  // alias
+            "(\\." +
+            /**/"([\\w.*]+)" + // property path
+            /**/"([^}]*)" + // rest of expression
+            ")?" +
+            "\\}"
+    );
+
     final DataAccesFacade facade;
     final Mapable<E> rowMapper;
 
@@ -44,15 +53,7 @@ public class QueryProcessor<E> {
 
     protected IQueryObject processQuery(String queryFragment, Iterator<Object> args) {
         QueryObject qo = new QueryObject();
-        Pattern p = Pattern.compile("\\{" +
-                "(\\w+)" +  // alias
-                "(\\." +
-                /**/"([\\w.*]+)" + // property path
-                /**/"([^}]*)" + // rest of expression
-                ")?" +
-                "\\}"
-        );
-        Matcher m = p.matcher(queryFragment);
+        Matcher m = QUERY_EXPR_PATTERN.matcher(queryFragment);
 
         try {
 

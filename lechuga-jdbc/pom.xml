@@ -16,6 +16,15 @@
             <artifactId>lenteja-jdbc</artifactId>
             <version>0.0.3-SNAPSHOT</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
