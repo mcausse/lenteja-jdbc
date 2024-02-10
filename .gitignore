@@ -40,3 +40,5 @@ hsqldb-kv/target/
 /lenteja-jdbc/pizza/pizza.script
 /jou.properties
 /jou.script
+/hsqldb-kv/jou.properties
+/hsqldb-kv/jou.script
