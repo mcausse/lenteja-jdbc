@@ -18,7 +18,6 @@ public class EventsRepository {
     public EventsRepository(DataAccesFacade facade) {
         EntityManagerBuilder entityManagerBuilder = new EntityManagerBuilder(facade);
         this.eventsEntityManager = entityManagerBuilder.build(Event.class);
-
         this.transactionalOps = new TransactionalOps(facade);
     }
 

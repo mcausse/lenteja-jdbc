@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.ScalarMappers;
 import org.homs.lentejajdbc.TransactionalOps;
+import org.homs.lentejajdbc.query.IQueryObject;
 import org.homs.lentejajdbc.query.QueryObject;
 
 import java.util.function.Function;
@@ -27,7 +28,7 @@ public class KvRepository<E> {
         this.idProvider = idProvider;
 
         if (!tableExists()) {
-            createTable();
+            recreateTable();
         }
     }
 
@@ -45,7 +46,7 @@ public class KvRepository<E> {
         return r > 0;
     }
 
-    protected void createTable() {
+    public void recreateTable() {
         transactionalOps.run(() -> {
             facade.update(QueryObject.of("drop table " + tableName + " if exists;"));
             facade.update(QueryObject.of("create table " + tableName + " (key longvarchar primary key, value longvarchar);"));
@@ -56,21 +57,37 @@ public class KvRepository<E> {
         final String key = idProvider.apply(entity);
         final String value = serialize(entity);
 
-        boolean exist = facade.loadUnique(
+        store(key, value);
+    }
+
+    public void store(String key, String value) {
+        final IQueryObject query;
+        if (existKey(key)) {
+            query = QueryObject.of("update " + tableName + " set value=? where key=?", key, value);
+        } else {
+            query = QueryObject.of("insert into " + tableName + " (key,value) values (?,?)", key, value);
+        }
+        facade.update(query);
+    }
+
+    public boolean exist(E entity) {
+        return existKey(idProvider.apply(entity));
+    }
+
+    public boolean existKey(String key) {
+        return facade.loadUnique(
                 QueryObject.of("select count(*) from " + tableName + " where key=?", key),
                 ScalarMappers.INTEGER) > 0;
-        if (exist) {
-            facade.update(QueryObject.of("update " + tableName + " set value=? where key=?", key, value));
-        } else {
-            facade.update(QueryObject.of("insert into " + tableName + " (key,value) values (?,?)", key, value));
-        }
     }
 
     public E loadBy(String key) {
-        String value = facade.loadUnique(QueryObject.of("select value from " + tableName + " where key=?", key),
-                ScalarMappers.STRING);
-
+        final String value = loadValueBy(key);
         return deserialize(value);
+    }
+
+    public String loadValueBy(String key) {
+        return facade.loadUnique(QueryObject.of("select value from " + tableName + " where key=?", key),
+                ScalarMappers.STRING);
     }
 
     protected String serialize(E entity) {

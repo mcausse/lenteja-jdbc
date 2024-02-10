@@ -33,5 +33,10 @@ lenteja-jdbc/target/
 votr/target/
 martung-utils/target/
 lechuga-queue/target/
+hsqldb-kv/target/
 
 
+/lenteja-jdbc/pizza/pizza.properties
+/lenteja-jdbc/pizza/pizza.script
+/jou.properties
+/jou.script
