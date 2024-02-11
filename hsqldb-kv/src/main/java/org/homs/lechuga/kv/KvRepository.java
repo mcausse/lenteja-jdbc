@@ -1,13 +1,13 @@
-package io.homs.ulabhub;
+package org.homs.lechuga.kv;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.ScalarMappers;
 import org.homs.lentejajdbc.TransactionalOps;
-import org.homs.lentejajdbc.query.IQueryObject;
 import org.homs.lentejajdbc.query.QueryObject;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class KvRepository<E> {
@@ -41,15 +41,16 @@ public class KvRepository<E> {
 
     protected boolean tableExists() {
         int r = transactionalOps.runAsReadOnlyWithReturn(() -> facade.loadUnique(
-                QueryObject.of("SELECT count(*) FROM information_schema.tables WHERE table_name = ?", tableName),
-                ScalarMappers.INTEGER));
+                ScalarMappers.INTEGER,
+                "SELECT count(*) FROM information_schema.tables WHERE table_name = ?", tableName
+        ));
         return r > 0;
     }
 
     public void recreateTable() {
         transactionalOps.run(() -> {
-            facade.update(QueryObject.of("drop table " + tableName + " if exists;"));
-            facade.update(QueryObject.of("create table " + tableName + " (key longvarchar primary key, value longvarchar);"));
+            facade.update("drop table " + tableName + " if exists;");
+            facade.update("create table " + tableName + " (key longvarchar primary key, value longvarchar);");
         });
     }
 
@@ -61,13 +62,11 @@ public class KvRepository<E> {
     }
 
     public void store(String key, String value) {
-        final IQueryObject query;
         if (existKey(key)) {
-            query = QueryObject.of("update " + tableName + " set value=? where key=?", key, value);
+            facade.update("update " + tableName + " set value=? where key=?", key, value);
         } else {
-            query = QueryObject.of("insert into " + tableName + " (key,value) values (?,?)", key, value);
+            facade.update("insert into " + tableName + " (key,value) values (?,?)", key, value);
         }
-        facade.update(query);
     }
 
     public boolean exist(E entity) {
@@ -76,8 +75,8 @@ public class KvRepository<E> {
 
     public boolean existKey(String key) {
         return facade.loadUnique(
-                QueryObject.of("select count(*) from " + tableName + " where key=?", key),
-                ScalarMappers.INTEGER) > 0;
+                ScalarMappers.INTEGER,
+                "select count(*) from " + tableName + " where key=?", key) > 0;
     }
 
     public E loadBy(String key) {
@@ -86,8 +85,57 @@ public class KvRepository<E> {
     }
 
     public String loadValueBy(String key) {
-        return facade.loadUnique(QueryObject.of("select value from " + tableName + " where key=?", key),
-                ScalarMappers.STRING);
+        return facade.loadUnique(ScalarMappers.STRING, "select value from " + tableName + " where key=?", key);
+    }
+
+    public enum SortBy {
+        NONE, ASC, DESC
+    }
+
+    public static class KeyValue<E> {
+
+        public final String key;
+        public final E value;
+
+        public KeyValue(String key, E value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "KeyValue{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public List<KeyValue<E>> loadAll(SortBy sortBy) {
+        String query = "select key,value from " + tableName;
+        if (sortBy == SortBy.ASC) {
+            query += " order by key asc";
+        } else if (sortBy == SortBy.DESC) {
+            query += " order by key desc";
+        }
+        return facade.load(QueryObject.of(query),
+                rs -> new KeyValue<>(
+                        rs.getString("key"),
+                        deserialize(rs.getString("value"))));
+    }
+
+    public void remove(E entity) {
+        remove(idProvider.apply(entity));
+    }
+
+    public void remove(String key) {
+        int affectedRows = facade.update("delete from " + tableName + " where key=?", key);
+        if (affectedRows == 0) {
+            throw new RuntimeException("not found; key=" + key);
+        }
+        if (affectedRows > 1) {
+            throw new RuntimeException("multiple affected rows; key=" + key);
+        }
     }
 
     protected String serialize(E entity) {
@@ -118,5 +166,9 @@ public class KvRepository<E> {
 
     public DataAccesFacade getFacade() {
         return facade;
+    }
+
+    public TransactionalOps getTransactionalOps() {
+        return transactionalOps;
     }
 }

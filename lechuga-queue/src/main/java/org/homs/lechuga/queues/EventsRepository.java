@@ -1,52 +1,37 @@
 package org.homs.lechuga.queues;
 
-import org.homs.lechuga.entity.EntityManager;
-import org.homs.lechuga.entity.EntityManagerBuilder;
-import org.homs.lechuga.entity.query.QueryProcessor;
+import org.homs.lechuga.kv.KvRepository;
 import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.TransactionalOps;
 
-import java.util.Collection;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class EventsRepository {
+public class EventsRepository<E extends QueueElement> {
 
-    private final EntityManager<Event, String> eventsEntityManager;
+    private final KvRepository<E> kvrepository;
 
-    private final TransactionalOps transactionalOps;
-
-    public EventsRepository(DataAccesFacade facade) {
-        EntityManagerBuilder entityManagerBuilder = new EntityManagerBuilder(facade);
-        this.eventsEntityManager = entityManagerBuilder.build(Event.class);
-        this.transactionalOps = new TransactionalOps(facade);
+    public EventsRepository(DataAccesFacade facade, Class<E> elementClass) {
+        var sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        this.kvrepository = new KvRepository<>(facade, elementClass, e -> sdf.format(e.getEnqueuedTime()));
     }
 
-    public void insert(Event event) {
-        eventsEntityManager.insert(event);
+    public void insert(E event) {
+        event.setEnqueuedTime(new Date());
+        this.kvrepository.store(event);
     }
 
-    public List<Event> loadEventsFromQueue(Collection<Class<?>> eventTypes) {
-        return transactionalOps.runAsReadOnlyWithReturn(() -> {
-
-            QueryProcessor<Event> q = eventsEntityManager.createQuery("e");
-            q.append("select {e.*} from {e} where {e.type} in (");
-
-            int i = 0;
-            for (var eventType : eventTypes) {
-                if (i > 0) {
-                    q.append(", ");
-                }
-                q.append("{e.type?}", eventType);
-                i++;
-            }
-
-            q.append(") ");
-            q.append("order by {e.created} asc ");
-            return q.execute().load();
-        });
+    public List<E> loadElementsFromQueue() {
+        return this.kvrepository.loadAll(KvRepository.SortBy.ASC).stream().map(kv -> kv.value).collect(Collectors.toList());
     }
 
-    public void delete(Event event) {
-        transactionalOps.run(() -> eventsEntityManager.delete(event));
+    public void delete(E event) {
+        this.kvrepository.remove(event);
+    }
+
+    public TransactionalOps getTransactionalOps() {
+        return kvrepository.getTransactionalOps();
     }
 }

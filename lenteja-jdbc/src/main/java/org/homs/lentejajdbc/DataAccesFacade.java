@@ -8,12 +8,17 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public interface DataAccesFacade {
 
     DataSource getDataSource();
 
     void close();
+
+    <T> T loadUnique(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException, EmptyResultException;
+
+    <T> Optional<T> loadUniqueOptional(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException;
 
     <T> T loadUnique(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException;
 
@@ -25,7 +30,11 @@ public interface DataAccesFacade {
 
     <T> T execute(ConnectionExecutor<T> f);
 
+    <T> List<T> load(Mapable<T> mapable, String query, Object... args);
+
     <T> List<T> load(IQueryObject q, Mapable<T> mapable);
+
+    int update(String query, Object... args);
 
     int update(IQueryObject q);
 

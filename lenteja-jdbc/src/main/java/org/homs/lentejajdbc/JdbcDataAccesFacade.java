@@ -4,6 +4,7 @@ import org.homs.lentejajdbc.exception.EmptyResultException;
 import org.homs.lentejajdbc.exception.JdbcException;
 import org.homs.lentejajdbc.exception.TooManyResultsException;
 import org.homs.lentejajdbc.query.IQueryObject;
+import org.homs.lentejajdbc.query.QueryObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcDataAccesFacade implements DataAccesFacade {
 
@@ -174,6 +176,20 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
     }
 
     @Override
+    public <T> T loadUnique(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException, EmptyResultException {
+        return loadUnique(QueryObject.of(query, args), mapable);
+    }
+
+    @Override
+    public <T> Optional<T> loadUniqueOptional(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException {
+        try {
+            return Optional.of(loadUnique(QueryObject.of(query, args), mapable));
+        } catch (EmptyResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public <T> T loadUnique(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException {
 
         LOG.debug("{}", q);
@@ -237,6 +253,11 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
     }
 
     @Override
+    public <T> List<T> load(Mapable<T> mapable, String query, Object... args) {
+        return load(QueryObject.of(query, args), mapable);
+    }
+
+    @Override
     public <T> List<T> load(IQueryObject q, Mapable<T> mapable) {
         LOG.debug("{}", q);
         Connection c;
@@ -256,6 +277,11 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
         } finally {
             closeResources(rs, ps);
         }
+    }
+
+    @Override
+    public int update(String query, Object... args) {
+        return update(QueryObject.of(query, args));
     }
 
     @Override

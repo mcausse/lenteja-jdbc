@@ -1,4 +1,4 @@
-package io.homs.ulabhub;
+package org.homs.lechuga.kv;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

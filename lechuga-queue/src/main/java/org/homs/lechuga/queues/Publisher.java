@@ -1,20 +1,24 @@
 package org.homs.lechuga.queues;
 
-public class Publisher {
+public class Publisher<E extends QueueElement> {
 
-    private final EventsRepository eventsRepository;
+    private final EventsRepository<E> eventsRepository;
 
-    public Publisher(EventsRepository eventsRepository) {
+    public Publisher(EventsRepository<E> eventsRepository) {
         this.eventsRepository = eventsRepository;
     }
 
-    public void publish(Event event) {
-        this.eventsRepository.insert(event);
+    public void publish(E queueElement) {
+        eventsRepository.getTransactionalOps().run(() -> {
+            this.eventsRepository.insert(queueElement);
+        });
     }
 
-    public void publishAll(Iterable<Event> events) {
-        for (var event : events) {
-            this.eventsRepository.insert(event);
-        }
+    public void publishAll(Iterable<E> queueElements) {
+        eventsRepository.getTransactionalOps().run(() -> {
+            for (var event : queueElements) {
+                this.eventsRepository.insert(event);
+            }
+        });
     }
 }
