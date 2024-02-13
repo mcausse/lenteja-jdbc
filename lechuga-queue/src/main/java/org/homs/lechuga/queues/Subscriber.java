@@ -33,6 +33,7 @@ public class Subscriber<E extends QueueElement> {
         eventsRepository.getTransactionalOps().run(() -> {
             List<E> queueElements = eventsRepository.loadElementsFromQueue();
             for (var queueElement : queueElements) {
+                eventsRepository.delete(queueElement);
                 processQueueElement(queueElement);
             }
         });
@@ -46,6 +47,5 @@ public class Subscriber<E extends QueueElement> {
                 e.printStackTrace(); // TODO log
             }
         }
-        eventsRepository.delete(queueElement);
     }
 }

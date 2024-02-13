@@ -10,7 +10,7 @@
     <modules>
         <module>lenteja-jdbc</module>
         <module>lechuga-jdbc</module>
-        <module>votr</module>
+<!--        <module>votr</module>-->
         <module>martung-utils</module>
         <module>lechuga-queue</module>
         <module>hsqldb-kv</module>

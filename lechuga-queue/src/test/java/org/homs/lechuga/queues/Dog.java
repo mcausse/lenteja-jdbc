@@ -1,13 +1,9 @@
 package org.homs.lechuga.queues;
 
-import java.util.Date;
-
-public class Dog implements QueueElement {
+public class Dog extends QueueElement {
 
     private Long id;
     private String name;
-
-    private Date enqueuedTime;
 
     public Dog() {
     }
@@ -15,16 +11,6 @@ public class Dog implements QueueElement {
     public Dog(Long id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    @Override
-    public Date getEnqueuedTime() {
-        return enqueuedTime;
-    }
-
-    @Override
-    public void setEnqueuedTime(Date enqueuedTime) {
-        this.enqueuedTime = enqueuedTime;
     }
 
     public void setId(Long id) {

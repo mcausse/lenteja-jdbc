@@ -2,9 +2,15 @@ package org.homs.lechuga.queues;
 
 import java.util.Date;
 
-public interface QueueElement {
+public class QueueElement {
 
-    Date getEnqueuedTime();
+    private Date enqueuedTime;
 
-    void setEnqueuedTime(Date d);
+    public Date getEnqueuedTime() {
+        return enqueuedTime;
+    }
+
+    public void setEnqueuedTime(Date enqueuedTime) {
+        this.enqueuedTime = enqueuedTime;
+    }
 }
