@@ -63,7 +63,7 @@ public class KvRepository<E> {
 
     public void store(String key, String value) {
         if (existKey(key)) {
-            facade.update("update " + tableName + " set value=? where key=?", key, value);
+            facade.update("update " + tableName + " set value=? where key=?", value, key);
         } else {
             facade.update("insert into " + tableName + " (key,value) values (?,?)", key, value);
         }
