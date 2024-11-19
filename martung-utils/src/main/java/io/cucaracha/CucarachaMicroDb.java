@@ -1,4 +1,4 @@
-package org.homs.cucaracha;
+package io.cucaracha;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,35 +11,16 @@ import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
- * Cucaracha - micro Key-Value Database in 200 rows of code
+ * Cucaracha - micro Key-Value store in 200 rows of code
  *
- * @author mhoms 2018, 2019, 2022
+ * @author mhoms 2018, 2019, 2022, 2024
  */
 public class CucarachaMicroDb {
 
-//    public static void main(String[] args) {
-//
-//        CucarachaMicroDb db = new CucarachaMicroDb(new File("cucaracha-test.properties"));
-//
-//        db.beginTransaction();
-//        db.put("database", toList("cmp", "fpe"));
-//        db.commit();
-//    }
-//
-//    static String toList(String... s) {
-//        StringBuilder r = new StringBuilder();
-//        for (int i = 0; i < s.length; i++) {
-//            if (i > 0) {
-//                r.append(",");
-//            }
-//            r.append(s[i]);
-//        }
-//        return r.toString();
-//    }
-
-    //////////////////////////////////////////////////////////////
+    public static final String SEQUENCE_PREFIX = "__seq.";
 
     final File file;
     Properties p;
@@ -58,7 +39,7 @@ public class CucarachaMicroDb {
             try {
                 this.file.createNewFile();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("error creating database file: " + file, e);
             }
         }
     }
@@ -67,7 +48,7 @@ public class CucarachaMicroDb {
 
     public void beginTransaction() {
         if (p != null) {
-            throw new RuntimeException("yet in active transaction");
+            throw new RuntimeException("yet in active transaction: " + file);
         }
         lock.writeLock().lock();
         loadProperties();
@@ -75,7 +56,7 @@ public class CucarachaMicroDb {
 
     public void commit() {
         if (p == null) {
-            throw new RuntimeException("not in active transaction");
+            throw new RuntimeException("not in active transaction: " + file);
         }
         saveProperties();
         p = null;
@@ -84,29 +65,76 @@ public class CucarachaMicroDb {
 
     public void rollback() {
         if (p == null) {
-            throw new RuntimeException("not in active transaction");
+            throw new RuntimeException("not in active transaction: " + file);
         }
         p = null;
         lock.writeLock().unlock();
+    }
+
+    public void executeInTransaction(Runnable r) {
+        beginTransaction();
+        try {
+            r.run();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            throw e;
+        }
+    }
+
+    public void executeInTransactionAsReadOnly(Runnable r) {
+        beginTransaction();
+        try {
+            r.run();
+        } finally {
+            rollback();
+        }
+    }
+
+    public <T> T executeInTransactionWithReturn(Supplier<T> s) {
+        beginTransaction();
+        try {
+            var r = s.get();
+            commit();
+            return r;
+        } catch (Exception e) {
+            rollback();
+            throw e;
+        }
+    }
+
+    public <T> T executeInTransactionAsReadOnlyWithReturn(Supplier<T> s) {
+        beginTransaction();
+        try {
+            return s.get();
+        } finally {
+            rollback();
+        }
     }
 
     /* ===== C R U D ===== */
 
     public boolean exist(String key) {
         if (p == null) {
-            throw new RuntimeException("not in active transaction");
+            throw new RuntimeException("not in active transaction: " + file);
         }
         return p.containsKey(key);
     }
 
     public String get(String key) {
+        if (p == null) {
+            throw new RuntimeException("not in active transaction: " + file);
+        }
         if (!p.containsKey(key)) {
-            throw new IllegalArgumentException("not found: " + key);
+            throw new IllegalArgumentException("not found: " + key + "; " + file);
         }
         return p.getProperty(key);
     }
 
     public Map<String, String> find(Predicate<String> keyPredicate, Predicate<String> valuePredicate) {
+        if (p == null) {
+            throw new RuntimeException("not in active transaction: " + file);
+        }
         Map<String, String> r = new LinkedHashMap<>();
         for (Object okey : p.keySet()) {
             String key = (String) okey;
@@ -120,39 +148,36 @@ public class CucarachaMicroDb {
         return r;
     }
 
-    public Map<Long, String> find(String keyPrefix, Predicate<String> valuePredicate) {
-        Map<Long, String> r = new LinkedHashMap<>();
-        for (Object okey : p.keySet()) {
-            String key = (String) okey;
-            if (keyPrefix == null || key.startsWith(keyPrefix)) {
-                String value = p.getProperty(key);
-                if (valuePredicate == null || valuePredicate.test(value)) {
-                    long id = Long.parseLong(key.substring(keyPrefix.length()));
-                    r.put(id, value);
-                }
-            }
-        }
-        return r;
-    }
-
     public void remove(String key) {
+        if (p == null) {
+            throw new RuntimeException("not in active transaction: " + file);
+        }
         if (!p.containsKey(key)) {
-            throw new IllegalArgumentException("not found: " + key);
+            throw new IllegalArgumentException("not found: " + key + "; " + file);
         }
         p.remove(key);
     }
 
     public void put(String key, String value) {
+        if (p == null) {
+            throw new RuntimeException("not in active transaction: " + file);
+        }
         String v = Objects.requireNonNullElse(value, "");
         p.setProperty(key, v);
     }
 
     public void putAll(Properties p) {
+        if (p == null) {
+            throw new RuntimeException("not in active transaction: " + file);
+        }
         this.p.putAll(p);
     }
 
     public long getSequenceNextValue(String seqName) {
-        String seqPropName = "seq." + seqName;
+        if (p == null) {
+            throw new RuntimeException("not in active transaction: " + file);
+        }
+        String seqPropName = SEQUENCE_PREFIX + seqName;
         long id;
         if (p.containsKey(seqPropName)) {
             id = Long.parseLong(p.getProperty(seqPropName));
@@ -166,7 +191,10 @@ public class CucarachaMicroDb {
     }
 
     public long getSequenceCurrValue(String seqName) {
-        String seqPropName = "seq." + seqName;
+        if (p == null) {
+            throw new RuntimeException("not in active transaction: " + file);
+        }
+        String seqPropName = SEQUENCE_PREFIX + seqName;
         long id;
         if (p.containsKey(seqPropName)) {
             id = Long.parseLong(p.getProperty(seqPropName));
@@ -177,9 +205,13 @@ public class CucarachaMicroDb {
     }
 
     public void removeSequence(String seqName) {
-        String seqPropName = "seq." + seqName;
+        if (p == null) {
+            throw new RuntimeException("not in active transaction: " + file);
+        }
+        String seqPropName = SEQUENCE_PREFIX + seqName;
         p.remove(seqPropName);
     }
+
     /* ===== PERSISTENCE ===== */
 
     public Properties getCurrentProperties() {
@@ -188,10 +220,14 @@ public class CucarachaMicroDb {
 
     public void removeDatabase() {
         if (p != null) {
-            throw new RuntimeException("cannot remove in active transaction");
+            throw new RuntimeException("cannot remove database in active transaction: " + file);
         }
         this.file.delete();
-        //createFileIfNotExists();
+    }
+
+    public void recreateDatabase() {
+        removeDatabase();
+        createFileIfNotExists();
     }
 
     protected void saveProperties() {

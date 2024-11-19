@@ -63,7 +63,7 @@ public final class Result<T> {
         }
     }
 
-    public T getOrElseThrow(Function<Exception, RuntimeException> exceptionWrapperException) {
+    public T getOrElseThrow(Function<Exception, ? extends RuntimeException> exceptionWrapperException) {
         if (isSuccess()) {
             return getSuccessResult();
         } else {

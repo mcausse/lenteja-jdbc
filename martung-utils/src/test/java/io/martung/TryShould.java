@@ -38,7 +38,7 @@ class TryShould {
     @Test
     void void_failure() {
 
-        Result<Void> r = Try.forResult(this::voidSqlOperationThatFails);
+        var r = Try.forResult(this::voidSqlOperationThatFails);
 
         assertThat(r.isSuccess()).isFalse();
         assertThat(r.isFailed()).isTrue();
