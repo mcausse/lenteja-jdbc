@@ -181,7 +181,7 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
     }
 
     @Override
-    public <T> Optional<T> loadUniqueOptional(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException {
+    public <T> Optional<T> loadOptional(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException {
         try {
             return Optional.of(loadUnique(QueryObject.of(query, args), mapable));
         } catch (EmptyResultException e) {

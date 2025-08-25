@@ -1,18 +1,8 @@
 package org.homs.lentejajdbc.query;
 
-import java.util.StringJoiner;
-
 public class QueryObjectUtils {
 
     public static final int QUERY_STRING_LIMIT = 2000;
-
-    public static IQueryObject queryFor(String fragment, Object... args) {
-        QueryObject q = new QueryObject(fragment);
-        for (Object arg : args) {
-            q.addArg(arg);
-        }
-        return q;
-    }
 
 //    public static QueryObject in(Object... values) {
 //        var q = new QueryObject();

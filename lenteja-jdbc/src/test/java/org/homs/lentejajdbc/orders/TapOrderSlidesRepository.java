@@ -4,11 +4,11 @@ import org.homs.lentejajdbc.DataAccesFacade;
 import org.homs.lentejajdbc.Mapable;
 import org.homs.lentejajdbc.ResultSetUtils;
 import org.homs.lentejajdbc.orders.ent.*;
+import org.homs.lentejajdbc.query.QueryObject;
 
 import java.util.List;
 
 import static org.homs.lentejajdbc.ResultSetUtils.extractRowAsMap;
-import static org.homs.lentejajdbc.query.QueryObjectUtils.queryFor;
 
 public class TapOrderSlidesRepository {
 
@@ -80,46 +80,46 @@ public class TapOrderSlidesRepository {
 
 
     public List<Patient> getPatients() {
-        return facade.load(queryFor("select * from SQLUser.tPatients"), patientMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tPatients"), patientMapable);
     }
 
     List<Order> getOrdersByPatientID(int patientId) {
-        return facade.load(queryFor("select * from SQLUser.tOrders where rPatients=?", patientId), orderMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tOrders where rPatients=?", patientId), orderMapable);
     }
 
     List<Container> getContainersByOrderID(int orderId) {
-        return facade.load(queryFor("select * from SQLUser.tapOrderContainers where rOrders=?", orderId), containerMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tapOrderContainers where rOrders=?", orderId), containerMapable);
     }
 
     List<Block> getBlocksByContainersID(int containerId) {
-        return facade.load(queryFor("select * from SQLUser.tapOrderBlocks where rapOrderContainers=?", containerId), blockMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tapOrderBlocks where rapOrderContainers=?", containerId), blockMapable);
     }
 
     List<Slide> getSlideByBlockID(int blockId) {
-        return facade.load(queryFor("select * from SQLUser.tapOrderSlides where rapOrderBlocks=?", blockId), slideMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tapOrderSlides where rapOrderBlocks=?", blockId), slideMapable);
     }
 
     List<Slide> getSlideByContainerID(int containerId) {
-        return facade.load(queryFor("select * from SQLUser.tapOrderSlides where rapOrderContainers=?", containerId), slideMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tapOrderSlides where rapOrderContainers=?", containerId), slideMapable);
     }
 
     List<Slide> getSlideByOrderID(int orderId) {
-        return facade.load(queryFor("select * from SQLUser.tapOrderSlides where rOrders=?", orderId), slideMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tapOrderSlides where rOrders=?", orderId), slideMapable);
     }
 
     List<OrderObject> getObjectsByOrderId(int orderId) {
-        return facade.load(queryFor("select * from SQLUser.tapOrderObjects where rOrders=?", orderId), orderObjectMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tapOrderObjects where rOrders=?", orderId), orderObjectMapable);
     }
 
     List<OrderObject> getObjectsByContainerId(int containerId) {
-        return facade.load(queryFor("select * from SQLUser.tapOrderObjects where rapOrderContainers=?", containerId), orderObjectMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tapOrderObjects where rapOrderContainers=?", containerId), orderObjectMapable);
     }
 
     List<OrderObject> getObjectsByBlockId(int blockId) {
-        return facade.load(queryFor("select * from SQLUser.tapOrderObjects where rapOrderBlocks=?", blockId), orderObjectMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tapOrderObjects where rapOrderBlocks=?", blockId), orderObjectMapable);
     }
 
     List<OrderObject> getObjectsBySlideId(int slideId) {
-        return facade.load(queryFor("select * from SQLUser.tapOrderObjects where rapOrderSlides=?", slideId), orderObjectMapable);
+        return facade.load(QueryObject.of("select * from SQLUser.tapOrderObjects where rapOrderSlides=?", slideId), orderObjectMapable);
     }
 }

@@ -18,7 +18,7 @@ public interface DataAccesFacade {
 
     <T> T loadUnique(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException, EmptyResultException;
 
-    <T> Optional<T> loadUniqueOptional(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException;
+    <T> Optional<T> loadOptional(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException;
 
     <T> T loadUnique(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException;
 
