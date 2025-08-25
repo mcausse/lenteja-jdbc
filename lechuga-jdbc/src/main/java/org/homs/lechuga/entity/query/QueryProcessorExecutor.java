@@ -1,6 +1,6 @@
 package org.homs.lechuga.entity.query;
 
-import org.homs.lentejajdbc.DataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
 import org.homs.lentejajdbc.Mapable;
 import org.homs.lentejajdbc.exception.EmptyResultException;
 import org.homs.lentejajdbc.exception.TooManyResultsException;
@@ -10,11 +10,11 @@ import java.util.List;
 
 public class QueryProcessorExecutor<E> {
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
     final QueryObject queryObject;
     final Mapable<E> rowMapper;
 
-    public QueryProcessorExecutor(DataAccesFacade facade, QueryObject queryObject, Mapable<E> rowMapper) {
+    public QueryProcessorExecutor(IJdbcFacade facade, QueryObject queryObject, Mapable<E> rowMapper) {
         this.facade = facade;
         this.queryObject = queryObject;
         this.rowMapper = rowMapper;

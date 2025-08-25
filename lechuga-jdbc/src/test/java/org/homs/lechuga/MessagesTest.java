@@ -8,8 +8,8 @@ import org.homs.lechuga.entity.anno.Enumerated;
 import org.homs.lechuga.entity.anno.Id;
 import org.homs.lechuga.entity.anno.Table;
 import org.homs.lechuga.repository.LechugaRepository;
-import org.homs.lentejajdbc.DataAccesFacade;
-import org.homs.lentejajdbc.JdbcDataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
+import org.homs.lentejajdbc.JdbcIJdbcFacade;
 import org.homs.lentejajdbc.TransactionalOps;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
 import org.hsqldb.jdbc.JDBCDataSource;
@@ -102,7 +102,7 @@ public class MessagesTest {
     }
 
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
     final TransactionalOps transactionalOps;
 
     public MessagesTest() {
@@ -110,7 +110,7 @@ public class MessagesTest {
         ds.setUrl("jdbc:hsqldb:mem:a");
         ds.setUser("sa");
         ds.setPassword("");
-        this.facade = new JdbcDataAccesFacade(ds);
+        this.facade = new JdbcIJdbcFacade(ds);
         this.transactionalOps = new TransactionalOps(facade);
     }
 

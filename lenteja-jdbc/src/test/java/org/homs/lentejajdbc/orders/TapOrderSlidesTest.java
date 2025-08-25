@@ -1,7 +1,7 @@
 package org.homs.lentejajdbc.orders;
 
-import org.homs.lentejajdbc.DataAccesFacade;
-import org.homs.lentejajdbc.JdbcDataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
+import org.homs.lentejajdbc.JdbcIJdbcFacade;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 
 public class TapOrderSlidesTest {
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
 
     public TapOrderSlidesTest() {
         final JDBCDataSource ds = new JDBCDataSource();
         ds.setUrl("jdbc:hsqldb:mem:tapOrderSlides");
         ds.setUser("sa");
         ds.setPassword("");
-        this.facade = new JdbcDataAccesFacade(ds);
+        this.facade = new JdbcIJdbcFacade(ds);
     }
 
     @BeforeEach

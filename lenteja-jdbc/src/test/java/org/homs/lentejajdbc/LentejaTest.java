@@ -12,14 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LentejaTest {
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
 
     public LentejaTest() {
         final JDBCDataSource ds = new JDBCDataSource();
         ds.setUrl("jdbc:hsqldb:mem:pizza");
         ds.setUser("sa");
         ds.setPassword("");
-        this.facade = new JdbcDataAccesFacade(ds);
+        this.facade = new JdbcIJdbcFacade(ds);
     }
 
     @BeforeEach

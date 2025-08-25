@@ -17,15 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcDataAccesFacade implements DataAccesFacade {
+public class JdbcIJdbcFacade implements IJdbcFacade {
 
-    static final Logger LOG = LoggerFactory.getLogger(JdbcDataAccesFacade.class);
+    static final Logger LOG = LoggerFactory.getLogger(JdbcIJdbcFacade.class);
 
     protected final ThreadLocal<Tx> threadton = ThreadLocal.withInitial(() -> null);
 
     protected final DataSource ds;
 
-    public JdbcDataAccesFacade(DataSource ds) {
+    public JdbcIJdbcFacade(DataSource ds) {
         super();
         this.ds = ds;
     }
@@ -184,6 +184,15 @@ public class JdbcDataAccesFacade implements DataAccesFacade {
     public <T> Optional<T> loadOptional(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException {
         try {
             return Optional.of(loadUnique(QueryObject.of(query, args), mapable));
+        } catch (EmptyResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public <T> Optional<T> loadOptional(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException {
+        try {
+            return Optional.of(loadUnique(q, mapable));
         } catch (EmptyResultException e) {
             return Optional.empty();
         }

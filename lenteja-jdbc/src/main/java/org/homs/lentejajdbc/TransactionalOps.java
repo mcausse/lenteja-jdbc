@@ -4,9 +4,9 @@ import java.util.function.Supplier;
 
 public class TransactionalOps {
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
 
-    public TransactionalOps(DataAccesFacade facade) {
+    public TransactionalOps(IJdbcFacade facade) {
         this.facade = facade;
     }
 

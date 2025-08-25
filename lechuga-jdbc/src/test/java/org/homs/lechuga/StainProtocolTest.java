@@ -6,8 +6,8 @@ import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityManagerBuilder;
 import org.homs.lechuga.entity.anno.*;
 import org.homs.lechuga.entity.generator.impl.HsqldbIdentity;
-import org.homs.lentejajdbc.DataAccesFacade;
-import org.homs.lentejajdbc.JdbcDataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
+import org.homs.lentejajdbc.JdbcIJdbcFacade;
 import org.homs.lentejajdbc.ScalarMappers;
 import org.homs.lentejajdbc.TransactionalOps;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
@@ -55,7 +55,7 @@ public class StainProtocolTest {
         }
     }
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
     final TransactionalOps transactionalOps;
 
     public StainProtocolTest() {
@@ -63,7 +63,7 @@ public class StainProtocolTest {
         ds.setUrl("jdbc:hsqldb:mem:aa");
         ds.setUser("sa");
         ds.setPassword("");
-        this.facade = new JdbcDataAccesFacade(ds);
+        this.facade = new JdbcIJdbcFacade(ds);
         this.transactionalOps = new TransactionalOps(facade);
     }
 
@@ -80,7 +80,7 @@ public class StainProtocolTest {
         final EntityManager<StainProtocol, Long> stainProtEntityManager;
         final EntityManager<AdvancedStainProtocol, AdvancedStainProtocol.AdvancedStainProtocolId> advStainProtEntityManager;
 
-        public ProtocolsRepository(DataAccesFacade facade) {
+        public ProtocolsRepository(IJdbcFacade facade) {
             this.stainProtEntityManager = new EntityManagerBuilder(facade).build(StainProtocol.class);
             this.advStainProtEntityManager = new EntityManagerBuilder(facade).build(AdvancedStainProtocol.class);
         }

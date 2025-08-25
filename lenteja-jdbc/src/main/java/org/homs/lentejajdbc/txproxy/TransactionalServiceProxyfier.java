@@ -1,6 +1,6 @@
 package org.homs.lentejajdbc.txproxy;
 
-import org.homs.lentejajdbc.DataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
 import org.homs.lentejajdbc.exception.JdbcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,16 +15,16 @@ public class TransactionalServiceProxyfier implements InvocationHandler {
     static final Logger LOG = LoggerFactory.getLogger(TransactionalServiceProxyfier.class);
 
     final Object target;
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
 
-    protected TransactionalServiceProxyfier(Object target, DataAccesFacade facade) {
+    protected TransactionalServiceProxyfier(Object target, IJdbcFacade facade) {
         this.target = target;
         this.facade = facade;
     }
 
     @SuppressWarnings("unchecked")
 //    public static <T> T proxyfy(DataAccesFacade facade, Class<? super T> serviceInterface, T target) {
-    public static <T, TT extends T> T proxyfy(DataAccesFacade facade, Class<T> serviceInterface, TT target) {
+    public static <T, TT extends T> T proxyfy(IJdbcFacade facade, Class<T> serviceInterface, TT target) {
         return (T) Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class<?>[]{serviceInterface},
                 new TransactionalServiceProxyfier(target, facade));
     }

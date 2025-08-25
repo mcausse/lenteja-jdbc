@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 public class TransactionalUtils {
 
-    public static void run(DataAccesFacade facade, Runnable r) {
+    public static void run(IJdbcFacade facade, Runnable r) {
         facade.begin();
         try {
             r.run();
@@ -15,7 +15,7 @@ public class TransactionalUtils {
         }
     }
 
-    public static void runAsReadOnly(DataAccesFacade facade, Runnable r) {
+    public static void runAsReadOnly(IJdbcFacade facade, Runnable r) {
         facade.begin();
         try {
             r.run();
@@ -26,7 +26,7 @@ public class TransactionalUtils {
         }
     }
 
-    public static <T> T runWithReturn(DataAccesFacade facade, Supplier<T> r) {
+    public static <T> T runWithReturn(IJdbcFacade facade, Supplier<T> r) {
         facade.begin();
         try {
             var rr = r.get();
@@ -38,7 +38,7 @@ public class TransactionalUtils {
         }
     }
 
-    public static <T> T runAsReadOnlyWithReturn(DataAccesFacade facade, Supplier<T> r) {
+    public static <T> T runAsReadOnlyWithReturn(IJdbcFacade facade, Supplier<T> r) {
         facade.begin();
         try {
             return r.get();

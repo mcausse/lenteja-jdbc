@@ -1,7 +1,7 @@
 package org.homs.lentejajdbc.script;
 
-import org.homs.lentejajdbc.DataAccesFacade;
-import org.homs.lentejajdbc.JdbcDataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
+import org.homs.lentejajdbc.JdbcIJdbcFacade;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -11,14 +11,14 @@ import java.util.stream.Stream;
 
 public class SqlStatementParserTest {
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
 
     public SqlStatementParserTest() {
         final JDBCDataSource ds = new JDBCDataSource();
         ds.setUrl("jdbc:hsqldb:mem:pizza");
         ds.setUser("sa");
         ds.setPassword("");
-        this.facade = new JdbcDataAccesFacade(ds);
+        this.facade = new JdbcIJdbcFacade(ds);
     }
 
     static Stream<Arguments> scriptProvider() {

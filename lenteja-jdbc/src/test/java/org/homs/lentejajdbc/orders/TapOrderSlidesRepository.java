@@ -1,6 +1,6 @@
 package org.homs.lentejajdbc.orders;
 
-import org.homs.lentejajdbc.DataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
 import org.homs.lentejajdbc.Mapable;
 import org.homs.lentejajdbc.ResultSetUtils;
 import org.homs.lentejajdbc.orders.ent.*;
@@ -12,9 +12,9 @@ import static org.homs.lentejajdbc.ResultSetUtils.extractRowAsMap;
 
 public class TapOrderSlidesRepository {
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
 
-    public TapOrderSlidesRepository(DataAccesFacade facade) {
+    public TapOrderSlidesRepository(IJdbcFacade facade) {
         this.facade = facade;
     }
 

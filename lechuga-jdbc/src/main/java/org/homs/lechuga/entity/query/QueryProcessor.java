@@ -3,7 +3,7 @@ package org.homs.lechuga.entity.query;
 import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityPropertyModel;
 import org.homs.lechuga.exception.LechugaException;
-import org.homs.lentejajdbc.DataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
 import org.homs.lentejajdbc.Mapable;
 import org.homs.lentejajdbc.query.IQueryObject;
 import org.homs.lentejajdbc.query.QueryObject;
@@ -23,13 +23,13 @@ public class QueryProcessor<E> {
             "\\}"
     );
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
     final Mapable<E> rowMapper;
 
     final Map<String, EntityManager<?, ?>> aliases;
     final QueryObject queryObject;
 
-    public QueryProcessor(DataAccesFacade facade, Mapable<E> rowMapper) {
+    public QueryProcessor(IJdbcFacade facade, Mapable<E> rowMapper) {
         this.facade = facade;
         this.rowMapper = rowMapper;
         this.aliases = new LinkedHashMap<>();

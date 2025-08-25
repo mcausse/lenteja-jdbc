@@ -1,13 +1,13 @@
 package org.homs.lechuga.entity;
 
-import org.homs.lentejajdbc.DataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
 
 public class EntityManagerBuilder {
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
     final EntityModelBuilder entityModelBuilder;
 
-    public EntityManagerBuilder(DataAccesFacade facade) {
+    public EntityManagerBuilder(IJdbcFacade facade) {
         this.facade = facade;
         this.entityModelBuilder = new EntityModelBuilder();
     }

@@ -1,18 +1,17 @@
 package org.homs.lentejajdbc.script;
 
-import org.homs.lentejajdbc.DataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
 import org.homs.lentejajdbc.query.QueryObject;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class SqlScriptExecutor {
 
     public static final String DEFAULT_CHARSETNAME = "UTF-8";
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
 
-    public SqlScriptExecutor(final DataAccesFacade facade) {
+    public SqlScriptExecutor(final IJdbcFacade facade) {
         super();
         this.facade = facade;
     }
@@ -33,9 +32,4 @@ public class SqlScriptExecutor {
             facade.update(new QueryObject(stm));
         }
     }
-
-    public void execute(final String... stms) {
-        execute(Arrays.asList(stms));
-    }
-
 }

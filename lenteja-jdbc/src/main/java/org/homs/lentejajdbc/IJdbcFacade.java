@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public interface DataAccesFacade {
+public interface IJdbcFacade {
 
     DataSource getDataSource();
 
@@ -21,6 +21,8 @@ public interface DataAccesFacade {
     <T> Optional<T> loadOptional(Mapable<T> mapable, String query, Object... args) throws TooManyResultsException;
 
     <T> T loadUnique(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException;
+
+    <T> Optional<T> loadOptional(IQueryObject q, Mapable<T> mapable) throws TooManyResultsException, EmptyResultException;
 
     <T> T loadFirst(IQueryObject q, Mapable<T> mapable) throws EmptyResultException;
 

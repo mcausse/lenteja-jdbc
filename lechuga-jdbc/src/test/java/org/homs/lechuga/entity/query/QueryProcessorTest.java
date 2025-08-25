@@ -3,8 +3,8 @@ package org.homs.lechuga.entity.query;
 import org.homs.lechuga.*;
 import org.homs.lechuga.entity.EntityManager;
 import org.homs.lechuga.entity.EntityManagerBuilder;
-import org.homs.lentejajdbc.DataAccesFacade;
-import org.homs.lentejajdbc.JdbcDataAccesFacade;
+import org.homs.lentejajdbc.IJdbcFacade;
+import org.homs.lentejajdbc.JdbcIJdbcFacade;
 import org.homs.lentejajdbc.ResultSetUtils;
 import org.homs.lentejajdbc.script.SqlScriptExecutor;
 import org.hsqldb.jdbc.JDBCDataSource;
@@ -16,14 +16,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class QueryProcessorTest {
 
-    final DataAccesFacade facade;
+    final IJdbcFacade facade;
 
     public QueryProcessorTest() {
         final JDBCDataSource ds = new JDBCDataSource();
         ds.setUrl("jdbc:hsqldb:mem:a");
         ds.setUser("sa");
         ds.setPassword("");
-        this.facade = new JdbcDataAccesFacade(ds);
+        this.facade = new JdbcIJdbcFacade(ds);
     }
 
     @BeforeEach
